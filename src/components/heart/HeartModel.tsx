@@ -54,6 +54,10 @@ export function HeartModel() {
       curveSegments: 24,
     })
     geo.center()
+    // La forma clasica de corazon en three.js queda con las lobulas hacia abajo
+    // en el espacio Y-up de Three.js; se voltea 180 grados para que el
+    // corazon quede con la punta abajo y las lobulas arriba.
+    geo.rotateZ(Math.PI)
     return geo
   }, [])
 
