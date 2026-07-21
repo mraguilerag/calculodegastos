@@ -2,7 +2,7 @@ import { ToastProvider } from './components/ui/ToastProvider'
 import { AppBackground } from './components/layout/AppBackground'
 import { Header } from './components/layout/Header'
 import { Footer } from './components/layout/Footer'
-import { WelcomeGate } from './components/layout/WelcomeGate'
+import { WelcomeBanner } from './components/layout/WelcomeBanner'
 import { TotalsGrid } from './components/summary/TotalsGrid'
 import { ExpenseForm } from './components/expenses/ExpenseForm'
 import { ExpenseHistory } from './components/expenses/ExpenseHistory'
@@ -33,6 +33,7 @@ function AppShell() {
         </div>
         <Footer />
       </div>
+      <WelcomeBanner />
     </div>
   )
 }
@@ -40,9 +41,7 @@ function AppShell() {
 function App() {
   return (
     <ToastProvider>
-      <WelcomeGate>
-        <AppShell />
-      </WelcomeGate>
+      <AppShell />
     </ToastProvider>
   )
 }

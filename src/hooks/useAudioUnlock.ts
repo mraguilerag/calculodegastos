@@ -4,17 +4,16 @@ import { primeAudio } from '../lib/sound'
 import { bgm } from '../lib/bgm'
 
 /**
- * Red de seguridad para sesiones que regresan: si el usuario ya eligio "con
- * sonido" en una visita anterior, el navegador igual bloquea el audio hasta
- * el primer gesto real de ESTA sesion. Este hook desbloquea el AudioContext
- * y arranca la musica de fondo apenas ocurre esa primera interaccion.
+ * Los navegadores bloquean el audio hasta el primer gesto real del usuario
+ * en la sesion. Este hook desbloquea el AudioContext y arranca la musica de
+ * fondo apenas ocurre esa primera interaccion (clic o tecla), sin necesidad
+ * de una pantalla previa que pregunte nada.
  */
 export function useAudioUnlock() {
-  const hasChosenSound = useAppStore((s) => s.settings.hasChosenSound)
   const soundEnabled = useAppStore((s) => s.settings.soundEnabled)
 
   useEffect(() => {
-    if (!hasChosenSound || !soundEnabled) return
+    if (!soundEnabled) return
 
     let unlocked = false
     function handleFirstGesture() {
@@ -32,5 +31,5 @@ export function useAudioUnlock() {
       window.removeEventListener('pointerdown', handleFirstGesture)
       window.removeEventListener('keydown', handleFirstGesture)
     }
-  }, [hasChosenSound, soundEnabled])
+  }, [soundEnabled])
 }

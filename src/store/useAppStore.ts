@@ -24,7 +24,7 @@ interface AppState {
   categories: Category[]
   budget: Budget
   settings: Settings
-  /** Se incrementa cada vez que se guarda un gasto; el gatito 3D lo observa para animar su reaccion. */
+  /** Se incrementa cada vez que se guarda un gasto; el corazon 3D lo observa para animar su reaccion. */
   reactionTick: number
 
   addExpense: (input: NewExpenseInput) => Expense
@@ -39,14 +39,14 @@ interface AppState {
   toggleTheme: () => void
   toggleSound: () => void
   setCurrency: (code: string) => void
-  chooseSoundPreference: (enabled: boolean) => void
+  dismissWelcome: () => void
 }
 
 const DEFAULT_SETTINGS: Settings = {
   theme: 'light',
   soundEnabled: true,
   currency: DEFAULT_CURRENCY_CODE,
-  hasChosenSound: false,
+  hasSeenWelcome: false,
 }
 
 function normalizeAmount(value: number | string): number {
@@ -152,16 +152,21 @@ export const useAppStore = create<AppState>()(
       toggleSound: () =>
         set((state) => ({ settings: { ...state.settings, soundEnabled: !state.settings.soundEnabled } })),
       setCurrency: (code) => set((state) => ({ settings: { ...state.settings, currency: code } })),
-      chooseSoundPreference: (enabled) =>
-        set((state) => ({ settings: { ...state.settings, soundEnabled: enabled, hasChosenSound: true } })),
+      dismissWelcome: () => set((state) => ({ settings: { ...state.settings, hasSeenWelcome: true } })),
     }),
     {
       name: 'gastitos-kawaii-store',
       storage: createJSONStorage(() => localStorage),
-      version: 1,
+      version: 2,
       migrate: (persisted) => {
-        const p = (persisted ?? {}) as Partial<{ settings: Partial<Settings> }>
-        return { ...p, settings: { ...DEFAULT_SETTINGS, ...(p.settings ?? {}) } }
+        const p = (persisted ?? {}) as Partial<{ settings: Partial<Settings> & { hasChosenSound?: boolean } }>
+        const legacyChosen = p.settings?.hasChosenSound
+        const settings: Settings = {
+          ...DEFAULT_SETTINGS,
+          ...(p.settings ?? {}),
+          hasSeenWelcome: p.settings?.hasSeenWelcome ?? legacyChosen ?? false,
+        }
+        return { ...p, settings }
       },
       partialize: (state) => ({
         expenses: state.expenses,

@@ -25,8 +25,8 @@ export interface Settings {
   soundEnabled: boolean
   /** Codigo de moneda (ISO 4217), ver src/data/currencies.ts */
   currency: string
-  /** Si ya se eligio "con sonido"/"sin sonido" en la pantalla de bienvenida */
-  hasChosenSound: boolean
+  /** Si ya se mostro y cerro el mensaje de bienvenida */
+  hasSeenWelcome: boolean
 }
 
 export interface Totals {

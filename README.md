@@ -1,4 +1,4 @@
-# Michi Gastos
+# Mis Gastos
 
 App de control de gastos personales, por María. Estetica retro kawaii / cute coquette; texto e informacion siempre claros y neutros.
 
@@ -25,8 +25,8 @@ src/
   lib/sound.ts                sintetizador de efectos de sonido (Web Audio API, sin archivos externos)
   data/defaultCategories.ts    categorias por defecto
   components/
-    layout/                    Header, Footer, AppBackground (skyline SVG con parallax)
-    cat/                        CatScene + CatModel (gatito 3D)
+    layout/                    Header, Footer, AppBackground (skyline SVG con parallax), WelcomeBanner
+    heart/                      HeartScene + HeartModel (corazon 3D animado)
     expenses/                   formulario, historial, edicion, categorias
     summary/                    totales, grafico de dona, presupuesto mensual
     ui/                         GlassCard, Button, ConfirmDialog, ToastProvider

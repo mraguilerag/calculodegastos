@@ -13,7 +13,7 @@ export function getAudioContext(): AudioContext | null {
 /**
  * Desbloquea el AudioContext de forma confiable. Los navegadores solo permiten
  * reproducir audio despues de un gesto real del usuario (clic/tap) - hay que
- * llamar esto de forma sincronica dentro de ese gesto (ver WelcomeGate).
+ * llamar esto de forma sincronica dentro de ese gesto (ver Header, boton de sonido).
  */
 export async function primeAudio(): Promise<void> {
   const audioCtx = getAudioContext()

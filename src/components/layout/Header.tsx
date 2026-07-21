@@ -6,7 +6,7 @@ import { sound, primeAudio } from '../../lib/sound'
 import { bgm } from '../../lib/bgm'
 import { CurrencyPicker } from './CurrencyPicker'
 
-const CatScene = lazy(() => import('../cat/CatScene').then((m) => ({ default: m.CatScene })))
+const HeartScene = lazy(() => import('../heart/HeartScene').then((m) => ({ default: m.HeartScene })))
 
 export function Header() {
   const theme = useAppStore((s) => s.settings.theme)
@@ -16,29 +16,26 @@ export function Header() {
 
   return (
     <GlassCard padding="sm" tilt={false} className="flex flex-wrap items-center justify-between gap-4">
-      <div className="flex items-center gap-3">
-        <Suspense
-          fallback={
-            <div className="flex h-28 w-28 flex-shrink-0 items-center justify-center text-5xl sm:h-32 sm:w-32">
-              🐱
-            </div>
-          }
-        >
-          <CatScene />
-        </Suspense>
-        <div>
-          <div className="flex items-baseline gap-2">
-            <h1 className="font-display text-2xl leading-none text-pink-600 dark:text-pink-300 sm:text-3xl">
-              Michi Gastos
-            </h1>
-            <span className="font-hand -rotate-3 text-base text-pink-400/70 dark:text-pink-300/50 sm:text-lg">
-              by María
-            </span>
+      <Suspense
+        fallback={
+          <div className="flex h-28 w-28 flex-shrink-0 items-center justify-center text-5xl sm:h-32 sm:w-32">
+            💗
           </div>
-          <p className="mt-1 font-heading text-xs text-ink-500 dark:text-pink-200/60 sm:text-sm">
-            Control de gastos personales
-          </p>
-        </div>
+        }
+      >
+        <HeartScene />
+      </Suspense>
+
+      <div className="w-full flex-1 text-center sm:w-auto">
+        <h1 className="font-display text-4xl uppercase leading-none tracking-wide text-pink-600 dark:text-pink-300 sm:text-5xl">
+          Mis Gastos
+        </h1>
+        <p className="mt-2 font-hand -rotate-1 text-base text-pink-400/70 dark:text-pink-300/50 sm:text-lg">
+          by María
+        </p>
+        <p className="mt-1 font-heading text-xs text-ink-500 dark:text-pink-200/60 sm:text-sm">
+          Control de gastos personales
+        </p>
       </div>
 
       <div className="flex items-center gap-2">
