@@ -1,6 +1,6 @@
-# Gastitos Kawaii
+# Michi Gastos
 
-App de control de gastos personales. Estetica retro kawaii / cute coquette; texto e informacion siempre claros y neutros.
+App de control de gastos personales, por María. Estetica retro kawaii / cute coquette; texto e informacion siempre claros y neutros.
 
 ## Stack
 

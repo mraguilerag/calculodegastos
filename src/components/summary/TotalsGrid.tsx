@@ -2,6 +2,7 @@ import { useMemo } from 'react'
 import { motion } from 'framer-motion'
 import { useAppStore } from '../../store/useAppStore'
 import { computeTotals, formatMoney } from '../../lib/dates'
+import { useCurrency } from '../../hooks/useCurrency'
 import { GlassCard } from '../ui/GlassCard'
 
 const PERIODS: Array<{ key: keyof ReturnType<typeof computeTotals>; label: string }> = [
@@ -13,6 +14,7 @@ const PERIODS: Array<{ key: keyof ReturnType<typeof computeTotals>; label: strin
 
 export function TotalsGrid() {
   const expenses = useAppStore((s) => s.expenses)
+  const currency = useCurrency()
   const totals = useMemo(() => computeTotals(expenses), [expenses])
 
   return (
@@ -32,7 +34,7 @@ export function TotalsGrid() {
             transition={{ type: 'spring', stiffness: 300, damping: 20 }}
             className="font-heading text-xl font-semibold text-pink-600 dark:text-pink-300 sm:text-2xl"
           >
-            ${formatMoney(totals[period.key])}
+            {formatMoney(totals[period.key], currency)}
           </motion.span>
         </GlassCard>
       ))}

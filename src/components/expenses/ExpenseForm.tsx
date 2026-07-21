@@ -1,4 +1,4 @@
-import { useState, type FormEvent } from 'react'
+import { useRef, useState, type FormEvent } from 'react'
 import { motion } from 'framer-motion'
 import { useAppStore } from '../../store/useAppStore'
 import { todayISO } from '../../lib/dates'
@@ -9,12 +9,17 @@ import { CategoryPicker } from './CategoryPicker'
 import { NewCategoryDialog } from './NewCategoryDialog'
 import { useToast } from '../ui/ToastProvider'
 import { sound } from '../../lib/sound'
+import { useCurrency } from '../../hooks/useCurrency'
+import { useHeartBurst } from '../ui/HeartBurst'
 
 export function ExpenseForm() {
   const categories = useAppStore((s) => s.categories)
   const addExpense = useAppStore((s) => s.addExpense)
   const addCategory = useAppStore((s) => s.addCategory)
   const { showToast } = useToast()
+  const currency = useCurrency()
+  const { burst, portal } = useHeartBurst()
+  const submitWrapRef = useRef<HTMLDivElement>(null)
 
   const [amount, setAmount] = useState('')
   const [description, setDescription] = useState('')
@@ -30,8 +35,9 @@ export function ExpenseForm() {
       setAmount('')
       setDescription('')
       setDate(todayISO())
-      sound.save()
+      sound.check()
       showToast('Gasto guardado', { icon: '✓', variant: 'success' })
+      burst(submitWrapRef.current)
       setJustSaved(true)
       setTimeout(() => setJustSaved(false), 500)
     } catch (err) {
@@ -65,7 +71,7 @@ export function ExpenseForm() {
           <Field label="Monto" htmlFor="expense-amount">
             <div className="relative">
               <span className="pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 font-heading text-pink-500">
-                $
+                {currency.symbol}
               </span>
               <input
                 id="expense-amount"
@@ -77,7 +83,8 @@ export function ExpenseForm() {
                 value={amount}
                 onChange={(e) => setAmount(e.target.value)}
                 placeholder="0.00"
-                className={`${inputClasses} pl-8 font-heading text-lg`}
+                className={`${inputClasses} font-heading text-lg`}
+                style={{ paddingLeft: `${1.6 + currency.symbol.length * 0.5}rem` }}
               />
             </div>
           </Field>
@@ -117,7 +124,11 @@ export function ExpenseForm() {
           />
         </Field>
 
-        <motion.div animate={justSaved ? { scale: [1, 1.04, 1] } : {}} transition={{ duration: 0.4 }}>
+        <motion.div
+          ref={submitWrapRef}
+          animate={justSaved ? { scale: [1, 1.04, 1] } : {}}
+          transition={{ duration: 0.4 }}
+        >
           <Button type="submit" className="w-full py-3.5 text-base" silent>
             Guardar gasto
           </Button>
@@ -129,6 +140,7 @@ export function ExpenseForm() {
         onClose={() => setNewCategoryOpen(false)}
         onCreate={handleCreateCategory}
       />
+      {portal}
     </GlassCard>
   )
 }

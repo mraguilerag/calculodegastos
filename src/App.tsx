@@ -2,15 +2,18 @@ import { ToastProvider } from './components/ui/ToastProvider'
 import { AppBackground } from './components/layout/AppBackground'
 import { Header } from './components/layout/Header'
 import { Footer } from './components/layout/Footer'
+import { WelcomeGate } from './components/layout/WelcomeGate'
 import { TotalsGrid } from './components/summary/TotalsGrid'
 import { ExpenseForm } from './components/expenses/ExpenseForm'
 import { ExpenseHistory } from './components/expenses/ExpenseHistory'
 import { CategoryChart } from './components/summary/CategoryChart'
 import { BudgetWidget } from './components/summary/BudgetWidget'
 import { useThemeSync } from './hooks/useThemeSync'
+import { useAudioUnlock } from './hooks/useAudioUnlock'
 
 function AppShell() {
   useThemeSync()
+  useAudioUnlock()
 
   return (
     <div className="relative min-h-screen">
@@ -37,7 +40,9 @@ function AppShell() {
 function App() {
   return (
     <ToastProvider>
-      <AppShell />
+      <WelcomeGate>
+        <AppShell />
+      </WelcomeGate>
     </ToastProvider>
   )
 }

@@ -2,6 +2,7 @@ import { useMemo, useState } from 'react'
 import { motion } from 'framer-motion'
 import { useAppStore } from '../../store/useAppStore'
 import { computeTotals, formatMoney } from '../../lib/dates'
+import { useCurrency } from '../../hooks/useCurrency'
 import { GlassCard } from '../ui/GlassCard'
 import { Button } from '../ui/Button'
 import { BudgetDialog } from './BudgetDialog'
@@ -13,6 +14,7 @@ export function BudgetWidget() {
   const budget = useAppStore((s) => s.budget)
   const setMonthlyLimit = useAppStore((s) => s.setMonthlyLimit)
   const { showToast } = useToast()
+  const currency = useCurrency()
   const [open, setOpen] = useState(false)
 
   const spent = useMemo(() => computeTotals(expenses).month, [expenses])
@@ -48,8 +50,8 @@ export function BudgetWidget() {
       ) : (
         <div className="mt-4">
           <div className="flex justify-between text-sm font-heading font-medium text-ink-700 dark:text-pink-100/80">
-            <span>Gastado: ${formatMoney(spent)}</span>
-            <span>Limite: ${formatMoney(limit)}</span>
+            <span>Gastado: {formatMoney(spent, currency)}</span>
+            <span>Limite: {formatMoney(limit, currency)}</span>
           </div>
 
           <div className="mt-2 h-4 overflow-hidden rounded-full bg-white/60 dark:bg-night-900/60 shadow-[inset_0_1px_3px_rgba(184,91,143,0.18)]">

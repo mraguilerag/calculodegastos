@@ -2,7 +2,9 @@ import { lazy, Suspense } from 'react'
 import { motion } from 'framer-motion'
 import { useAppStore } from '../../store/useAppStore'
 import { GlassCard } from '../ui/GlassCard'
-import { sound } from '../../lib/sound'
+import { sound, primeAudio } from '../../lib/sound'
+import { bgm } from '../../lib/bgm'
+import { CurrencyPicker } from './CurrencyPicker'
 
 const CatScene = lazy(() => import('../cat/CatScene').then((m) => ({ default: m.CatScene })))
 
@@ -25,9 +27,14 @@ export function Header() {
           <CatScene />
         </Suspense>
         <div>
-          <h1 className="font-display text-2xl leading-none text-pink-600 dark:text-pink-300 sm:text-3xl">
-            Gastitos Kawaii
-          </h1>
+          <div className="flex items-baseline gap-2">
+            <h1 className="font-display text-2xl leading-none text-pink-600 dark:text-pink-300 sm:text-3xl">
+              Michi Gastos
+            </h1>
+            <span className="font-hand -rotate-3 text-base text-pink-400/70 dark:text-pink-300/50 sm:text-lg">
+              by María
+            </span>
+          </div>
           <p className="mt-1 font-heading text-xs text-ink-500 dark:text-pink-200/60 sm:text-sm">
             Control de gastos personales
           </p>
@@ -35,12 +42,21 @@ export function Header() {
       </div>
 
       <div className="flex items-center gap-2">
+        <CurrencyPicker />
+
         <motion.button
           type="button"
           whileTap={{ scale: 0.9 }}
-          onClick={() => {
-            sound.toggle()
+          onClick={async () => {
+            const enabling = !soundEnabled
             toggleSound()
+            if (enabling) {
+              await primeAudio()
+              sound.toggle()
+              void bgm.start()
+            } else {
+              bgm.stop()
+            }
           }}
           aria-label={soundEnabled ? 'Silenciar sonidos' : 'Activar sonidos'}
           aria-pressed={soundEnabled}

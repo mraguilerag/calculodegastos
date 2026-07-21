@@ -9,6 +9,7 @@ import { ConfirmDialog } from '../ui/ConfirmDialog'
 import { useToast } from '../ui/ToastProvider'
 import { sound } from '../../lib/sound'
 import { formatMoney } from '../../lib/dates'
+import { useCurrency } from '../../hooks/useCurrency'
 
 export function ExpenseHistory() {
   const expenses = useAppStore((s) => s.expenses)
@@ -16,6 +17,7 @@ export function ExpenseHistory() {
   const updateExpense = useAppStore((s) => s.updateExpense)
   const deleteExpense = useAppStore((s) => s.deleteExpense)
   const { showToast } = useToast()
+  const currency = useCurrency()
 
   const [editingId, setEditingId] = useState<string | null>(null)
   const [deletingId, setDeletingId] = useState<string | null>(null)
@@ -42,7 +44,7 @@ export function ExpenseHistory() {
     try {
       updateExpense(id, patch)
       setEditingId(null)
-      sound.save()
+      sound.check()
       showToast('Gasto actualizado', { icon: '✓' })
     } catch (err) {
       sound.error()
@@ -100,7 +102,7 @@ export function ExpenseHistory() {
         title="Eliminar gasto"
         description={
           deletingExpense
-            ? `Se eliminara "${deletingExpense.description || 'este gasto'}" de $${formatMoney(deletingExpense.amount)}.`
+            ? `Se eliminara "${deletingExpense.description || 'este gasto'}" de ${formatMoney(deletingExpense.amount, currency)}.`
             : undefined
         }
         confirmLabel="Eliminar"

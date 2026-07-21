@@ -5,6 +5,7 @@ import type { Category, Expense } from '../../types'
 import { Button } from '../ui/Button'
 import { Field, inputClasses } from '../ui/Field'
 import { todayISO } from '../../lib/dates'
+import { useCurrency } from '../../hooks/useCurrency'
 
 interface EditExpenseDialogProps {
   expense: Expense | null
@@ -14,6 +15,7 @@ interface EditExpenseDialogProps {
 }
 
 export function EditExpenseDialog({ expense, categories, onClose, onSave }: EditExpenseDialogProps) {
+  const currency = useCurrency()
   const [amount, setAmount] = useState('')
   const [categoryId, setCategoryId] = useState('')
   const [description, setDescription] = useState('')
@@ -60,16 +62,22 @@ export function EditExpenseDialog({ expense, categories, onClose, onSave }: Edit
 
             <div className="mt-4 flex flex-col gap-4">
               <Field label="Monto" htmlFor="edit-amount">
-                <input
-                  id="edit-amount"
-                  type="number"
-                  step="0.01"
-                  min="0.01"
-                  required
-                  value={amount}
-                  onChange={(e) => setAmount(e.target.value)}
-                  className={inputClasses}
-                />
+                <div className="relative">
+                  <span className="pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 font-heading text-pink-500">
+                    {currency.symbol}
+                  </span>
+                  <input
+                    id="edit-amount"
+                    type="number"
+                    step="0.01"
+                    min="0.01"
+                    required
+                    value={amount}
+                    onChange={(e) => setAmount(e.target.value)}
+                    className={inputClasses}
+                    style={{ paddingLeft: `${1.6 + currency.symbol.length * 0.5}rem` }}
+                  />
+                </div>
               </Field>
 
               <Field label="Categoria" htmlFor="edit-category">

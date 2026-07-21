@@ -5,6 +5,7 @@
 @import "@fontsource/fredoka/latin-600.css";
 @import "@fontsource/fredoka/latin-700.css";
 @import "@fontsource/bagel-fat-one/latin-400.css";
+@import "@fontsource/caveat/latin-600.css";
 @import "@fontsource-variable/inter/wght.css";
 
 @custom-variant dark (&:where(.dark, .dark *));
@@ -52,6 +53,7 @@
   --font-display: "Bagel Fat One", ui-rounded, cursive;
   --font-heading: "Fredoka", ui-rounded, sans-serif;
   --font-body: "Inter Variable", "Inter", ui-sans-serif, sans-serif;
+  --font-hand: "Caveat", cursive;
 
   /* ---- Sombras en capas para glassmorphism real ---- */
   --shadow-glass-sm: 0 2px 8px -2px rgba(184, 91, 143, 0.18), 0 1px 2px rgba(184, 91, 143, 0.12);
@@ -130,10 +132,91 @@ body {
   }
 }
 
+.twinkle-sparkle {
+  animation-name: sparkle-twinkle;
+  animation-timing-function: ease-in-out;
+  animation-iteration-count: infinite;
+}
+
+@keyframes sparkle-twinkle {
+  0%,
+  100% {
+    opacity: 0.15;
+    transform: scale(0.6) rotate(0deg);
+  }
+  50% {
+    opacity: 0.9;
+    transform: scale(1.05) rotate(20deg);
+  }
+}
+
+.floating-heart {
+  animation-name: heart-float;
+  animation-timing-function: ease-in-out;
+  animation-iteration-count: infinite;
+}
+
+@keyframes heart-float {
+  0% {
+    transform: translate(0, 0) scale(0.8);
+    opacity: 0;
+  }
+  12% {
+    opacity: 0.75;
+  }
+  85% {
+    opacity: 0.45;
+  }
+  100% {
+    transform: translate(var(--heart-drift), -70vh) scale(1.05);
+    opacity: 0;
+  }
+}
+
+.blossom-sway {
+  animation: blossom-sway 7s ease-in-out infinite;
+  transform-origin: bottom center;
+}
+
+.heart-burst-particle {
+  position: absolute;
+  left: 0;
+  top: 0;
+  font-size: 1.1rem;
+  opacity: 0;
+  animation: heart-burst-fly 750ms ease-out forwards;
+}
+
+@keyframes heart-burst-fly {
+  0% {
+    opacity: 1;
+    transform: translate(-50%, -50%) scale(0.5);
+  }
+  100% {
+    opacity: 0;
+    transform: translate(calc(-50% + var(--dx)), calc(-50% + var(--dy))) scale(1.1);
+  }
+}
+
+@keyframes blossom-sway {
+  0%,
+  100% {
+    transform: rotate(-4deg);
+  }
+  50% {
+    transform: rotate(4deg);
+  }
+}
+
 @media (prefers-reduced-motion: reduce) {
-  .sakura-petal {
+  .sakura-petal,
+  .twinkle-sparkle,
+  .floating-heart {
     animation: none;
     display: none;
+  }
+  .blossom-sway {
+    animation: none;
   }
 }
 

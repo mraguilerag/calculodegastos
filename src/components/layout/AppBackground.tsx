@@ -83,6 +83,78 @@ function usePetals(count: number) {
   )
 }
 
+function useSparkles(count: number) {
+  return useMemo(
+    () =>
+      Array.from({ length: count }, (_, i) => ({
+        id: i,
+        left: Math.round(Math.random() * 100),
+        top: Math.round(Math.random() * 90),
+        size: 8 + Math.random() * 10,
+        duration: 2.4 + Math.random() * 2.6,
+        delay: -(Math.random() * 4),
+        gold: i % 2 === 0,
+      })),
+    [count]
+  )
+}
+
+function useHearts(count: number) {
+  return useMemo(
+    () =>
+      Array.from({ length: count }, (_, i) => ({
+        id: i,
+        left: Math.round(Math.random() * 100),
+        duration: 16 + Math.random() * 12,
+        delay: -(Math.random() * 22),
+        size: 10 + Math.random() * 10,
+        drift: (Math.random() - 0.5) * 60,
+        lavender: i % 2 === 0,
+      })),
+    [count]
+  )
+}
+
+interface GlyphProps {
+  className?: string
+  style?: CSSProperties
+}
+
+function SparkleGlyph({ className, style }: GlyphProps) {
+  return (
+    <svg viewBox="0 0 24 24" fill="currentColor" className={className} style={style}>
+      <path d="M12 0c0.6 5.6 1.9 8.6 5 10.6 3 2 6.4 2.9 7 3.4-0.6 0.5-4 1.4-7 3.4-3.1 2-4.4 5-5 10.6-0.6-5.6-1.9-8.6-5-10.6C3.9 15.4 0.6 14.5 0 14c0.6-0.5 4-1.4 7-3.4 3.1-2 4.4-5 5-10.6z" />
+    </svg>
+  )
+}
+
+function HeartGlyph({ className, style }: GlyphProps) {
+  return (
+    <svg viewBox="0 0 24 24" fill="currentColor" className={className} style={style}>
+      <path d="M12 21s-7.5-4.8-10.3-9.6C0 8.3 1.2 4.6 4.6 3.4 7.1 2.5 9.7 3.5 12 6c2.3-2.5 4.9-3.5 7.4-2.6 3.4 1.2 4.6 4.9 2.9 8-2.8 4.8-10.3 9.6-10.3 9.6z" />
+    </svg>
+  )
+}
+
+function BlossomGlyph({ className }: { className?: string }) {
+  return (
+    <svg viewBox="0 0 40 40" className={className}>
+      {[0, 72, 144, 216, 288].map((angle) => (
+        <ellipse
+          key={angle}
+          cx="20"
+          cy="11"
+          rx="6.5"
+          ry="9"
+          fill="currentColor"
+          transform={`rotate(${angle} 20 20)`}
+        />
+      ))}
+      <circle cx="20" cy="20" r="4" className="fill-gold-400" />
+    </svg>
+  )
+}
+
 interface SkylineLayerProps {
   layer: (typeof BUILDING_LAYERS)[number]
   springX: MotionValue<number>
@@ -124,6 +196,8 @@ function SkylineLayer({ layer, springX, springY }: SkylineLayerProps) {
 export function AppBackground() {
   const { springX, springY } = useParallax()
   const petals = usePetals(10)
+  const sparkles = useSparkles(16)
+  const hearts = useHearts(7)
   const moonX = useTransform(springX, (v) => v * -18)
   const moonY = useTransform(springY, (v) => v * -12)
 
@@ -181,6 +255,48 @@ export function AppBackground() {
           }
         />
       ))}
+
+      {/* Destellos titilando */}
+      {sparkles.map((s) => (
+        <SparkleGlyph
+          key={s.id}
+          className={
+            'twinkle-sparkle absolute ' + (s.gold ? 'text-gold-400/80 dark:text-gold-300/70' : 'text-pink-300/80 dark:text-pink-200/60')
+          }
+          style={{
+            left: `${s.left}%`,
+            top: `${s.top}%`,
+            width: s.size,
+            height: s.size,
+            animationDuration: `${s.duration}s`,
+            animationDelay: `${s.delay}s`,
+          }}
+        />
+      ))}
+
+      {/* Corazones flotando hacia arriba */}
+      {hearts.map((h) => (
+        <HeartGlyph
+          key={h.id}
+          className={
+            'floating-heart absolute bottom-0 ' + (h.lavender ? 'text-lavender-300/60 dark:text-lavender-300/40' : 'text-pink-300/60 dark:text-pink-200/40')
+          }
+          style={
+            {
+              left: `${h.left}%`,
+              width: h.size,
+              height: h.size,
+              animationDuration: `${h.duration}s`,
+              animationDelay: `${h.delay}s`,
+              '--heart-drift': `${h.drift}px`,
+            } as CSSProperties
+          }
+        />
+      ))}
+
+      {/* Florecitas decorativas cerca del skyline */}
+      <BlossomGlyph className="blossom-sway absolute bottom-[8%] left-[6%] h-10 w-10 text-pink-300/50 dark:text-pink-200/30" />
+      <BlossomGlyph className="blossom-sway absolute bottom-[14%] right-[9%] h-7 w-7 text-lavender-300/50 dark:text-lavender-300/30" />
 
       <div className="grain-overlay" />
     </div>

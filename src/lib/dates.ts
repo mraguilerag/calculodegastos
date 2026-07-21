@@ -1,5 +1,6 @@
 import { startOfWeek, startOfMonth, startOfYear, startOfDay, format } from 'date-fns'
 import type { Expense, Totals } from '../types'
+import type { Currency } from '../data/currencies'
 
 /** Convierte "yyyy-MM-dd" a Date local (evita corrimientos de zona horaria de parseISO/UTC). */
 export function parseLocalDate(iso: string): Date {
@@ -54,6 +55,11 @@ export function getTotalsByCategory(expenses: Expense[]): Record<string, number>
   return map
 }
 
-export function formatMoney(amount: number): string {
-  return new Intl.NumberFormat('es', { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(amount)
+/** Formatea un monto con el simbolo y las reglas (decimales, separadores) de la moneda dada. */
+export function formatMoney(amount: number, currency: Currency): string {
+  const number = new Intl.NumberFormat(currency.locale, {
+    minimumFractionDigits: currency.decimals,
+    maximumFractionDigits: currency.decimals,
+  }).format(amount)
+  return `${currency.symbol}${number}`
 }

@@ -2,6 +2,7 @@ import { create } from 'zustand'
 import { persist, createJSONStorage } from 'zustand/middleware'
 import type { Budget, Category, Expense, Settings } from '../types'
 import { DEFAULT_CATEGORIES, CATEGORY_COLOR_PALETTE } from '../data/defaultCategories'
+import { DEFAULT_CURRENCY_CODE } from '../data/currencies'
 import { makeId, slugify } from '../lib/id'
 import { todayISO } from '../lib/dates'
 
@@ -37,6 +38,15 @@ interface AppState {
   setTheme: (theme: Settings['theme']) => void
   toggleTheme: () => void
   toggleSound: () => void
+  setCurrency: (code: string) => void
+  chooseSoundPreference: (enabled: boolean) => void
+}
+
+const DEFAULT_SETTINGS: Settings = {
+  theme: 'light',
+  soundEnabled: true,
+  currency: DEFAULT_CURRENCY_CODE,
+  hasChosenSound: false,
 }
 
 function normalizeAmount(value: number | string): number {
@@ -53,7 +63,7 @@ export const useAppStore = create<AppState>()(
       expenses: [],
       categories: DEFAULT_CATEGORIES,
       budget: { monthlyLimit: null },
-      settings: { theme: 'light', soundEnabled: true },
+      settings: DEFAULT_SETTINGS,
       reactionTick: 0,
 
       addExpense: (input) => {
@@ -141,10 +151,18 @@ export const useAppStore = create<AppState>()(
         })),
       toggleSound: () =>
         set((state) => ({ settings: { ...state.settings, soundEnabled: !state.settings.soundEnabled } })),
+      setCurrency: (code) => set((state) => ({ settings: { ...state.settings, currency: code } })),
+      chooseSoundPreference: (enabled) =>
+        set((state) => ({ settings: { ...state.settings, soundEnabled: enabled, hasChosenSound: true } })),
     }),
     {
       name: 'gastitos-kawaii-store',
       storage: createJSONStorage(() => localStorage),
+      version: 1,
+      migrate: (persisted) => {
+        const p = (persisted ?? {}) as Partial<{ settings: Partial<Settings> }>
+        return { ...p, settings: { ...DEFAULT_SETTINGS, ...(p.settings ?? {}) } }
+      },
       partialize: (state) => ({
         expenses: state.expenses,
         categories: state.categories,

@@ -2,6 +2,7 @@ import { useMemo } from 'react'
 import { motion } from 'framer-motion'
 import { useAppStore } from '../../store/useAppStore'
 import { getMonthExpenses, getTotalsByCategory, formatMoney } from '../../lib/dates'
+import { useCurrency } from '../../hooks/useCurrency'
 import { GlassCard } from '../ui/GlassCard'
 
 const SIZE = 168
@@ -11,6 +12,7 @@ const RADIUS = (SIZE - STROKE) / 2
 export function CategoryChart() {
   const expenses = useAppStore((s) => s.expenses)
   const categories = useAppStore((s) => s.categories)
+  const currency = useCurrency()
 
   const entries = useMemo(() => {
     const monthExpenses = getMonthExpenses(expenses)
@@ -93,7 +95,7 @@ export function CategoryChart() {
               className="fill-ink-900 dark:fill-pink-50"
               style={{ fontFamily: 'var(--font-heading)', fontSize: 17, fontWeight: 700 }}
             >
-              ${formatMoney(entries.total)}
+              {formatMoney(entries.total, currency)}
             </text>
           </svg>
 
