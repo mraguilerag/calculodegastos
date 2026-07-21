@@ -1,0 +1,79 @@
+import { AnimatePresence, motion } from 'framer-motion'
+import { createPortal } from 'react-dom'
+import { useEffect, useState, type FormEvent } from 'react'
+import { Button } from '../ui/Button'
+import { Field, inputClasses } from '../ui/Field'
+
+interface BudgetDialogProps {
+  open: boolean
+  currentValue: number | null
+  onClose: () => void
+  onSave: (value: number | null) => void
+}
+
+export function BudgetDialog({ open, currentValue, onClose, onSave }: BudgetDialogProps) {
+  const [value, setValue] = useState('')
+
+  useEffect(() => {
+    if (open) setValue(currentValue !== null ? String(currentValue) : '')
+  }, [open, currentValue])
+
+  function handleSubmit(e: FormEvent) {
+    e.preventDefault()
+    onSave(value.trim() === '' ? null : Number(value))
+  }
+
+  return createPortal(
+    <AnimatePresence>
+      {open && (
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          exit={{ opacity: 0 }}
+          className="fixed inset-0 z-[70] flex items-center justify-center bg-ink-900/35 dark:bg-black/55 backdrop-blur-sm p-4"
+          onClick={onClose}
+        >
+          <motion.form
+            initial={{ opacity: 0, scale: 0.92, y: 12 }}
+            animate={{ opacity: 1, scale: 1, y: 0 }}
+            exit={{ opacity: 0, scale: 0.94, y: 8 }}
+            transition={{ type: 'spring', stiffness: 340, damping: 26 }}
+            onClick={(e) => e.stopPropagation()}
+            onSubmit={handleSubmit}
+            role="dialog"
+            aria-modal="true"
+            aria-label="Presupuesto mensual"
+            className="w-full max-w-sm rounded-3xl border border-white/70 dark:border-white/10 bg-white/90 dark:bg-night-800/90 backdrop-blur-xl p-6 shadow-[var(--shadow-glass-lg)]"
+          >
+            <h2 className="font-heading text-lg font-semibold text-ink-900 dark:text-pink-50">Presupuesto mensual</h2>
+            <p className="mt-1 text-sm text-ink-500 dark:text-pink-200/60">
+              Define un limite de gasto mensual para seguir tu progreso. Dejalo vacio para quitarlo.
+            </p>
+
+            <Field label="Monto" htmlFor="budget-amount" className="mt-4">
+              <input
+                id="budget-amount"
+                type="number"
+                step="0.01"
+                min="0"
+                autoFocus
+                value={value}
+                onChange={(e) => setValue(e.target.value)}
+                placeholder="ej: 400"
+                className={inputClasses}
+              />
+            </Field>
+
+            <div className="mt-6 flex justify-end gap-2">
+              <Button type="button" variant="ghost" onClick={onClose}>
+                Cancelar
+              </Button>
+              <Button type="submit">Guardar</Button>
+            </div>
+          </motion.form>
+        </motion.div>
+      )}
+    </AnimatePresence>,
+    document.body
+  )
+}
