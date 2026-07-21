@@ -21,14 +21,17 @@ npm run preview  # sirve el build de produccion localmente
 src/
   types.ts                 tipos de dominio (Expense, Category, Budget, Settings)
   store/useAppStore.ts      estado global (zustand + persist) y todas las acciones CRUD
-  lib/dates.ts               calculo de totales por periodo (hoy/semana/mes/ano)
+  lib/dates.ts               totales del periodo actual, formato de fecha/agrupacion
+  lib/periods.ts              navegacion de periodos (semana/mes/ano), rangos y etiquetas
   lib/sound.ts                sintetizador de efectos de sonido (Web Audio API, sin archivos externos)
+  lib/exportData.ts            exporta el historial a CSV
+  hooks/usePeriodNav.ts         estado del navegador de periodo (semana/mes/ano + offset)
   data/defaultCategories.ts    categorias por defecto
   components/
     layout/                    Header, Footer, AppBackground (skyline SVG con parallax), WelcomeBanner
     heart/                      HeartScene + HeartModel (corazon 3D animado)
-    expenses/                   formulario, historial, edicion, categorias
-    summary/                    totales, grafico de dona, presupuesto mensual
+    expenses/                   formulario, historial agrupado por fecha, edicion, categorias
+    summary/                    totales, navegador de periodo, grafico de dona, desglose semanal, presupuesto
     ui/                         GlassCard, Button, ConfirmDialog, ToastProvider
 ```
 

@@ -1,4 +1,5 @@
 import { startOfWeek, startOfMonth, startOfYear, startOfDay, format } from 'date-fns'
+import { es } from 'date-fns/locale'
 import type { Expense, Totals } from '../types'
 import type { Currency } from '../data/currencies'
 
@@ -13,7 +14,7 @@ export function todayISO(): string {
 }
 
 export function formatDisplayDate(iso: string): string {
-  return format(parseLocalDate(iso), "d 'de' MMM, yyyy")
+  return format(parseLocalDate(iso), "d 'de' MMM, yyyy", { locale: es })
 }
 
 export function computeTotals(expenses: Expense[], referenceDate: Date = new Date()): Totals {
@@ -38,13 +39,14 @@ export function computeTotals(expenses: Expense[], referenceDate: Date = new Dat
   return { today, week, month, year }
 }
 
-export function getMonthExpenses(expenses: Expense[], referenceDate: Date = new Date()): Expense[] {
-  const monthStart = startOfMonth(referenceDate)
-  const nextMonthStart = startOfMonth(new Date(referenceDate.getFullYear(), referenceDate.getMonth() + 1, 1))
-  return expenses.filter((e) => {
-    const d = parseLocalDate(e.date)
-    return d >= monthStart && d < nextMonthStart
-  })
+/** Etiqueta legible para agrupar el historial: "Hoy", "Ayer" o la fecha formateada. */
+export function formatGroupLabel(iso: string): string {
+  if (iso === todayISO()) return 'Hoy'
+  const yesterday = new Date()
+  yesterday.setDate(yesterday.getDate() - 1)
+  if (iso === format(yesterday, 'yyyy-MM-dd')) return 'Ayer'
+  const text = format(parseLocalDate(iso), "EEEE d 'de' MMMM", { locale: es })
+  return text.charAt(0).toUpperCase() + text.slice(1)
 }
 
 export function getTotalsByCategory(expenses: Expense[]): Record<string, number> {

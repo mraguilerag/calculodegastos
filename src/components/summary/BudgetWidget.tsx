@@ -2,6 +2,7 @@ import { useMemo, useState } from 'react'
 import { motion } from 'framer-motion'
 import { useAppStore } from '../../store/useAppStore'
 import { computeTotals, formatMoney } from '../../lib/dates'
+import { getPeriodRange, getElapsedDays, daysInRange } from '../../lib/periods'
 import { useCurrency } from '../../hooks/useCurrency'
 import { GlassCard } from '../ui/GlassCard'
 import { Button } from '../ui/Button'
@@ -21,6 +22,14 @@ export function BudgetWidget() {
   const limit = budget.monthlyLimit
   const pct = limit ? Math.min(100, Math.round((spent / limit) * 100)) : 0
   const over = limit !== null && spent > limit
+
+  const projection = useMemo(() => {
+    const monthRange = getPeriodRange('month', 0)
+    const elapsedDays = getElapsedDays(monthRange)
+    const totalDays = daysInRange(monthRange)
+    if (spent <= 0 || elapsedDays >= totalDays) return null
+    return (spent / elapsedDays) * totalDays
+  }, [spent])
 
   function handleSave(value: number | null) {
     try {
@@ -44,9 +53,14 @@ export function BudgetWidget() {
       </div>
 
       {limit === null ? (
-        <p className="mt-4 text-sm text-ink-500 dark:text-pink-200/60">
-          Todavia no defines un presupuesto mensual.
-        </p>
+        <div className="mt-4">
+          <p className="text-sm text-ink-500 dark:text-pink-200/60">Todavia no defines un presupuesto mensual.</p>
+          {projection !== null && (
+            <p className="mt-2 text-xs font-heading font-medium text-ink-500 dark:text-pink-200/60">
+              Al ritmo actual, terminarás el mes con ~{formatMoney(projection, currency)}
+            </p>
+          )}
+        </div>
       ) : (
         <div className="mt-4">
           <div className="flex justify-between text-sm font-heading font-medium text-ink-700 dark:text-pink-100/80">
@@ -70,6 +84,16 @@ export function BudgetWidget() {
           <p className="mt-2 text-xs font-heading font-medium text-ink-500 dark:text-pink-200/60">
             {over ? 'Superaste el limite mensual' : `${pct}% del presupuesto usado`}
           </p>
+
+          {projection !== null && (
+            <p
+              className={`mt-1 text-xs font-heading font-medium ${
+                projection > limit ? 'text-rose-500 dark:text-rose-300' : 'text-ink-500 dark:text-pink-200/60'
+              }`}
+            >
+              Al ritmo actual, terminarás con ~{formatMoney(projection, currency)}
+            </p>
+          )}
         </div>
       )}
 

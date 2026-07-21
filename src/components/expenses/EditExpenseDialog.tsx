@@ -6,6 +6,7 @@ import { Button } from '../ui/Button'
 import { Field, inputClasses } from '../ui/Field'
 import { todayISO } from '../../lib/dates'
 import { useCurrency } from '../../hooks/useCurrency'
+import { amountInputProps } from '../../data/currencies'
 
 interface EditExpenseDialogProps {
   expense: Expense | null
@@ -69,8 +70,8 @@ export function EditExpenseDialog({ expense, categories, onClose, onSave }: Edit
                   <input
                     id="edit-amount"
                     type="number"
-                    step="0.01"
-                    min="0.01"
+                    step={amountInputProps(currency).step}
+                    min={amountInputProps(currency).min}
                     required
                     value={amount}
                     onChange={(e) => setAmount(e.target.value)}

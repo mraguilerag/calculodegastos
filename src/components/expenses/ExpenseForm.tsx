@@ -10,6 +10,7 @@ import { NewCategoryDialog } from './NewCategoryDialog'
 import { useToast } from '../ui/ToastProvider'
 import { sound } from '../../lib/sound'
 import { useCurrency } from '../../hooks/useCurrency'
+import { amountInputProps } from '../../data/currencies'
 import { useHeartBurst } from '../ui/HeartBurst'
 
 export function ExpenseForm() {
@@ -77,12 +78,12 @@ export function ExpenseForm() {
                 id="expense-amount"
                 type="number"
                 inputMode="decimal"
-                step="0.01"
-                min="0.01"
+                step={amountInputProps(currency).step}
+                min={amountInputProps(currency).min}
                 required
                 value={amount}
                 onChange={(e) => setAmount(e.target.value)}
-                placeholder="0.00"
+                placeholder={amountInputProps(currency).placeholder}
                 className={`${inputClasses} font-heading text-lg`}
                 style={{ paddingLeft: `${1.6 + currency.symbol.length * 0.5}rem` }}
               />

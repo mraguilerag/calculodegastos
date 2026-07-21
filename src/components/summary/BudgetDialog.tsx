@@ -3,6 +3,8 @@ import { createPortal } from 'react-dom'
 import { useEffect, useState, type FormEvent } from 'react'
 import { Button } from '../ui/Button'
 import { Field, inputClasses } from '../ui/Field'
+import { useCurrency } from '../../hooks/useCurrency'
+import { amountInputProps } from '../../data/currencies'
 
 interface BudgetDialogProps {
   open: boolean
@@ -12,6 +14,7 @@ interface BudgetDialogProps {
 }
 
 export function BudgetDialog({ open, currentValue, onClose, onSave }: BudgetDialogProps) {
+  const currency = useCurrency()
   const [value, setValue] = useState('')
 
   useEffect(() => {
@@ -51,17 +54,23 @@ export function BudgetDialog({ open, currentValue, onClose, onSave }: BudgetDial
             </p>
 
             <Field label="Monto" htmlFor="budget-amount" className="mt-4">
-              <input
-                id="budget-amount"
-                type="number"
-                step="0.01"
-                min="0"
-                autoFocus
-                value={value}
-                onChange={(e) => setValue(e.target.value)}
-                placeholder="ej: 400"
-                className={inputClasses}
-              />
+              <div className="relative">
+                <span className="pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 font-heading text-pink-500">
+                  {currency.symbol}
+                </span>
+                <input
+                  id="budget-amount"
+                  type="number"
+                  step={amountInputProps(currency).step}
+                  min="0"
+                  autoFocus
+                  value={value}
+                  onChange={(e) => setValue(e.target.value)}
+                  placeholder={`ej: 400`}
+                  className={inputClasses}
+                  style={{ paddingLeft: `${1.6 + currency.symbol.length * 0.5}rem` }}
+                />
+              </div>
             </Field>
 
             <div className="mt-6 flex justify-end gap-2">
