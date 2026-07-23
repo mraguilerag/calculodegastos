@@ -20,7 +20,7 @@ export function CurrencyPicker() {
         className="appearance-none bg-transparent pr-4 font-heading text-sm font-semibold text-ink-700 dark:text-pink-100 focus:outline-none"
       >
         {CURRENCIES.map((c) => (
-          <option key={c.code} value={c.code}>
+          <option key={c.code} value={c.code} className="bg-cream-50 text-ink-900 dark:bg-night-800 dark:text-pink-100">
             {c.symbol} {c.code}
           </option>
         ))}
