@@ -31,9 +31,9 @@ export function BudgetWidget() {
     return (spent / elapsedDays) * totalDays
   }, [spent])
 
-  function handleSave(value: number | null) {
+  async function handleSave(value: number | null) {
     try {
-      setMonthlyLimit(value)
+      await setMonthlyLimit(value)
       setOpen(false)
       sound.save()
       showToast('Presupuesto actualizado', { icon: '✓' })

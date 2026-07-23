@@ -29,10 +29,10 @@ export function ExpenseForm() {
   const [newCategoryOpen, setNewCategoryOpen] = useState(false)
   const [justSaved, setJustSaved] = useState(false)
 
-  function handleSubmit(e: FormEvent) {
+  async function handleSubmit(e: FormEvent) {
     e.preventDefault()
     try {
-      addExpense({ amount, categoryId: categoryId ?? '', description, date })
+      await addExpense({ amount, categoryId: categoryId ?? '', description, date })
       setAmount('')
       setDescription('')
       setDate(todayISO())
@@ -50,9 +50,9 @@ export function ExpenseForm() {
     }
   }
 
-  function handleCreateCategory(input: { name: string; color: string; icon: string }) {
+  async function handleCreateCategory(input: { name: string; color: string; icon: string }) {
     try {
-      const cat = addCategory(input)
+      const cat = await addCategory(input)
       setCategoryId(cat.id)
       setNewCategoryOpen(false)
       sound.save()

@@ -62,9 +62,12 @@ export function ExpenseHistory({ nav }: ExpenseHistoryProps) {
   const deletingExpense: Expense | null = sorted.find((e) => e.id === deletingId) ?? null
   const fallbackCategory = categoryMap.get('otros') ?? categories[0]
 
-  function handleSave(id: string, patch: { amount: string; categoryId: string; description: string; date: string }) {
+  async function handleSave(
+    id: string,
+    patch: { amount: string; categoryId: string; description: string; date: string }
+  ) {
     try {
-      updateExpense(id, patch)
+      await updateExpense(id, patch)
       setEditingId(null)
       sound.check()
       showToast('Gasto actualizado', { icon: '✓' })
@@ -74,12 +77,17 @@ export function ExpenseHistory({ nav }: ExpenseHistoryProps) {
     }
   }
 
-  function handleConfirmDelete() {
+  async function handleConfirmDelete() {
     if (!deletingExpense) return
-    deleteExpense(deletingExpense.id)
-    setDeletingId(null)
-    sound.delete()
-    showToast('Gasto eliminado', { icon: '🗑' })
+    try {
+      await deleteExpense(deletingExpense.id)
+      setDeletingId(null)
+      sound.delete()
+      showToast('Gasto eliminado', { icon: '🗑' })
+    } catch (err) {
+      sound.error()
+      showToast(err instanceof Error ? err.message : 'No se pudo eliminar el gasto.', { variant: 'error' })
+    }
   }
 
   return (
