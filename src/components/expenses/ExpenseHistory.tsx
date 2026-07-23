@@ -65,7 +65,7 @@ export function ExpenseHistory({ nav }: ExpenseHistoryProps) {
 
   async function handleSave(
     id: string,
-    patch: { amount: string; categoryId: string | null; description: string; date: string }
+    patch: { amount: number; categoryId: string | null; description: string; date: string }
   ) {
     try {
       await updateExpense(id, patch)

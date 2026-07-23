@@ -1,4 +1,4 @@
-import { startOfWeek, startOfMonth, startOfYear, startOfDay, format } from 'date-fns'
+import { startOfWeek, startOfMonth, startOfYear, startOfDay, format, addMonths } from 'date-fns'
 import { es } from 'date-fns/locale'
 import type { Expense, Totals } from '../types'
 import type { Currency } from '../data/currencies'
@@ -18,6 +18,11 @@ export function formatDisplayDate(iso: string): string {
   return format(parseLocalDate(iso), "d 'de' MMM, yyyy", { locale: es })
 }
 
+/** Suma meses a una fecha "yyyy-MM-dd", util para generar cuotas futuras. */
+export function addMonthsToISO(iso: string, months: number): string {
+  return format(addMonths(parseLocalDate(iso), months), 'yyyy-MM-dd')
+}
+
 export function computeTotals(expenses: Expense[], referenceDate: Date = new Date()): Totals {
   const dayStart = startOfDay(referenceDate)
   const weekStart = startOfWeek(referenceDate, { weekStartsOn: 1 })
@@ -31,6 +36,9 @@ export function computeTotals(expenses: Expense[], referenceDate: Date = new Dat
 
   for (const expense of expenses) {
     const d = parseLocalDate(expense.date)
+    // las cuotas futuras (gastos recurrentes ya guardados con fecha por venir)
+    // no deben sumar a los totales hasta que llegue su fecha
+    if (d > dayStart) continue
     if (d >= dayStart) today += expense.amount
     if (d >= weekStart) week += expense.amount
     if (d >= monthStart) month += expense.amount

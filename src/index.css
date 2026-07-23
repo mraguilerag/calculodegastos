@@ -68,6 +68,19 @@ body,
   height: 100%;
 }
 
+/*
+ * Sin esto, los controles nativos del navegador (el popup del <select> de
+ * moneda, por ejemplo) siguen el esquema de color del sistema operativo en
+ * vez del tema claro/oscuro de la app, lo que puede dejar texto claro sobre
+ * fondo claro (o viceversa) cuando no coinciden.
+ */
+html {
+  color-scheme: light;
+}
+html.dark {
+  color-scheme: dark;
+}
+
 body {
   margin: 0;
   font-family: var(--font-body);

@@ -4,20 +4,20 @@ import { useEffect, useState, type FormEvent } from 'react'
 import type { Category, Expense } from '../../types'
 import { Button } from '../ui/Button'
 import { Field, inputClasses } from '../ui/Field'
-import { todayISO } from '../../lib/dates'
 import { useCurrency } from '../../hooks/useCurrency'
-import { amountInputProps } from '../../data/currencies'
+import { parseAmountInput, amountErrorMessage } from '../../lib/amount'
 
 interface EditExpenseDialogProps {
   expense: Expense | null
   categories: Category[]
   onClose: () => void
-  onSave: (id: string, patch: { amount: string; categoryId: string | null; description: string; date: string }) => void
+  onSave: (id: string, patch: { amount: number; categoryId: string | null; description: string; date: string }) => void
 }
 
 export function EditExpenseDialog({ expense, categories, onClose, onSave }: EditExpenseDialogProps) {
   const currency = useCurrency()
   const [amount, setAmount] = useState('')
+  const [amountError, setAmountError] = useState<string | null>(null)
   const [categoryId, setCategoryId] = useState<string | null>(null)
   const [description, setDescription] = useState('')
   const [date, setDate] = useState('')
@@ -25,6 +25,7 @@ export function EditExpenseDialog({ expense, categories, onClose, onSave }: Edit
   useEffect(() => {
     if (expense) {
       setAmount(String(expense.amount))
+      setAmountError(null)
       setCategoryId(expense.categoryId)
       setDescription(expense.description)
       setDate(expense.date)
@@ -34,7 +35,12 @@ export function EditExpenseDialog({ expense, categories, onClose, onSave }: Edit
   function handleSubmit(e: FormEvent) {
     e.preventDefault()
     if (!expense) return
-    onSave(expense.id, { amount, categoryId, description, date })
+    const parsedAmount = parseAmountInput(amount, currency)
+    if (!Number.isFinite(parsedAmount) || parsedAmount <= 0) {
+      setAmountError(amountErrorMessage(currency))
+      return
+    }
+    onSave(expense.id, { amount: parsedAmount, categoryId, description, date })
   }
 
   return createPortal(
@@ -69,16 +75,21 @@ export function EditExpenseDialog({ expense, categories, onClose, onSave }: Edit
                   </span>
                   <input
                     id="edit-amount"
-                    type="number"
-                    step={amountInputProps(currency).step}
-                    min={amountInputProps(currency).min}
-                    required
+                    type="text"
+                    inputMode="decimal"
                     value={amount}
-                    onChange={(e) => setAmount(e.target.value)}
+                    onChange={(e) => {
+                      setAmount(e.target.value)
+                      if (amountError) setAmountError(null)
+                    }}
+                    aria-invalid={amountError !== null}
                     className={inputClasses}
                     style={{ paddingLeft: `${1.6 + currency.symbol.length * 0.5}rem` }}
                   />
                 </div>
+                {amountError && (
+                  <p className="mt-1.5 pl-1 text-sm font-medium text-rose-600 dark:text-rose-300">{amountError}</p>
+                )}
               </Field>
 
               <Field label="Categoria" htmlFor="edit-category">
@@ -113,7 +124,6 @@ export function EditExpenseDialog({ expense, categories, onClose, onSave }: Edit
                   id="edit-date"
                   type="date"
                   value={date}
-                  max={todayISO()}
                   onChange={(e) => setDate(e.target.value)}
                   className={inputClasses}
                 />

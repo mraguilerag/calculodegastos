@@ -4,7 +4,7 @@ import { useEffect, useState, type FormEvent } from 'react'
 import { Button } from '../ui/Button'
 import { Field, inputClasses } from '../ui/Field'
 import { useCurrency } from '../../hooks/useCurrency'
-import { amountInputProps } from '../../data/currencies'
+import { parseAmountInput, amountErrorMessage } from '../../lib/amount'
 
 interface BudgetDialogProps {
   open: boolean
@@ -16,14 +16,27 @@ interface BudgetDialogProps {
 export function BudgetDialog({ open, currentValue, onClose, onSave }: BudgetDialogProps) {
   const currency = useCurrency()
   const [value, setValue] = useState('')
+  const [error, setError] = useState<string | null>(null)
 
   useEffect(() => {
-    if (open) setValue(currentValue !== null ? String(currentValue) : '')
+    if (open) {
+      setValue(currentValue !== null ? String(currentValue) : '')
+      setError(null)
+    }
   }, [open, currentValue])
 
   function handleSubmit(e: FormEvent) {
     e.preventDefault()
-    onSave(value.trim() === '' ? null : Number(value))
+    if (value.trim() === '') {
+      onSave(null)
+      return
+    }
+    const parsed = parseAmountInput(value, currency)
+    if (!Number.isFinite(parsed) || parsed <= 0) {
+      setError(amountErrorMessage(currency))
+      return
+    }
+    onSave(parsed)
   }
 
   return createPortal(
@@ -60,17 +73,21 @@ export function BudgetDialog({ open, currentValue, onClose, onSave }: BudgetDial
                 </span>
                 <input
                   id="budget-amount"
-                  type="number"
-                  step={amountInputProps(currency).step}
-                  min="0"
+                  type="text"
+                  inputMode="decimal"
                   autoFocus
                   value={value}
-                  onChange={(e) => setValue(e.target.value)}
-                  placeholder={`ej: 400`}
+                  onChange={(e) => {
+                    setValue(e.target.value)
+                    if (error) setError(null)
+                  }}
+                  placeholder="ej: 400"
+                  aria-invalid={error !== null}
                   className={inputClasses}
                   style={{ paddingLeft: `${1.6 + currency.symbol.length * 0.5}rem` }}
                 />
               </div>
+              {error && <p className="mt-1.5 pl-1 text-sm font-medium text-rose-600 dark:text-rose-300">{error}</p>}
             </Field>
 
             <div className="mt-6 flex justify-end gap-2">

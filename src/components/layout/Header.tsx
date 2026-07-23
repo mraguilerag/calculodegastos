@@ -1,3 +1,4 @@
+import { useState } from 'react'
 import { motion } from 'framer-motion'
 import { useAppStore } from '../../store/useAppStore'
 import { useSessionStore } from '../../store/useSessionStore'
@@ -6,6 +7,8 @@ import { sound, primeAudio } from '../../lib/sound'
 import { bgm } from '../../lib/bgm'
 import { CurrencyPicker } from './CurrencyPicker'
 import { AnimatedHeart } from '../heart/AnimatedHeart'
+import { EditNameDialog } from '../auth/EditNameDialog'
+import { useToast } from '../ui/ToastProvider'
 
 function greetingName(profileName: string | null, email: string | null): string {
   if (profileName) return profileName
@@ -19,11 +22,26 @@ export function Header() {
   const toggleTheme = useAppStore((s) => s.toggleTheme)
   const toggleSound = useAppStore((s) => s.toggleSound)
   const profileName = useAppStore((s) => s.profileName)
+  const setProfileName = useAppStore((s) => s.setProfileName)
   const sessionMode = useSessionStore((s) => s.mode)
   const userEmail = useSessionStore((s) => s.user?.email ?? null)
   const signOut = useSessionStore((s) => s.signOut)
   const requestAuth = useSessionStore((s) => s.requestAuth)
   const displayName = greetingName(profileName, userEmail)
+  const { showToast } = useToast()
+  const [editNameOpen, setEditNameOpen] = useState(false)
+
+  async function handleSaveName(name: string) {
+    try {
+      await setProfileName(name)
+      setEditNameOpen(false)
+      sound.save()
+      showToast('Nombre actualizado', { icon: '✓' })
+    } catch (err) {
+      sound.error()
+      showToast(err instanceof Error ? err.message : 'No se pudo guardar el nombre.', { variant: 'error' })
+    }
+  }
 
   return (
     <GlassCard padding="sm" tilt={false} className="flex flex-wrap items-center justify-between gap-4">
@@ -43,9 +61,17 @@ export function Header() {
 
       <div className="flex flex-col items-end gap-2">
         {sessionMode === 'cloud' && displayName && (
-          <p className="font-heading text-xs font-semibold text-pink-600 dark:text-pink-300">
+          <button
+            type="button"
+            onClick={() => {
+              sound.click()
+              setEditNameOpen(true)
+            }}
+            title="Editar nombre"
+            className="font-heading text-xs font-semibold text-pink-600 underline-offset-2 hover:underline dark:text-pink-300"
+          >
             Hola, {displayName}
-          </p>
+          </button>
         )}
         <div className="flex items-center gap-2">
           <CurrencyPicker />
@@ -121,6 +147,13 @@ export function Header() {
           )}
         </div>
       </div>
+
+      <EditNameDialog
+        open={editNameOpen}
+        currentName={profileName ?? ''}
+        onClose={() => setEditNameOpen(false)}
+        onSave={handleSaveName}
+      />
     </GlassCard>
   )
 }

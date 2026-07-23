@@ -69,7 +69,6 @@ export function PeriodNavigator({ nav }: PeriodNavigatorProps) {
             sound.click()
             nav.goNext()
           }}
-          disabled={nav.isCurrent}
           aria-label="Periodo siguiente"
           className="flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-full bg-white/70 text-ink-600 shadow-[var(--shadow-glass-sm)] disabled:opacity-30 dark:bg-night-700/70 dark:text-pink-100"
         >

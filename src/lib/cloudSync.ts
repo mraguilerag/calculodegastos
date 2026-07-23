@@ -145,6 +145,17 @@ export async function deleteCategoryRow(id: string): Promise<void> {
   if (error) throw error
 }
 
+/** Borra todos los gastos, categorias y el perfil de la cuenta (irreversible). */
+export async function deleteAllUserData(userId: string): Promise<void> {
+  const client = requireClient()
+  const { error: expensesError } = await client.from('expenses').delete().eq('user_id', userId)
+  if (expensesError) throw expensesError
+  const { error: categoriesError } = await client.from('categories').delete().eq('user_id', userId)
+  if (categoriesError) throw categoriesError
+  const { error: profileError } = await client.from('profiles').delete().eq('user_id', userId)
+  if (profileError) throw profileError
+}
+
 export async function reassignExpensesCategory(userId: string, fromCategoryId: string, toCategoryId: string) {
   const client = requireClient()
   const { error } = await client

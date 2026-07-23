@@ -32,7 +32,8 @@ export function usePeriodNav(): PeriodNav {
     label,
     isCurrent: isCurrentPeriod(offset),
     goPrev: () => setOffset((o) => o - 1),
-    goNext: () => setOffset((o) => Math.min(0, o + 1)),
+    // permite avanzar a periodos futuros para ver cuotas/gastos recurrentes ya cargados
+    goNext: () => setOffset((o) => o + 1),
     goToday: () => setOffset(0),
   }
 }

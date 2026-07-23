@@ -26,11 +26,3 @@ export const DEFAULT_CURRENCY_CODE = 'USD'
 export function getCurrency(code: string): Currency {
   return CURRENCIES.find((c) => c.code === code) ?? CURRENCIES[0]
 }
-
-/** step/min/placeholder para un <input type="number"> segun los decimales de la moneda. */
-export function amountInputProps(currency: Currency): { step: string; min: string; placeholder: string } {
-  if (currency.decimals === 0) {
-    return { step: '1', min: '1', placeholder: '0' }
-  }
-  return { step: '0.01', min: '0.01', placeholder: '0.00' }
-}
