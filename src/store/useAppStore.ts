@@ -64,7 +64,6 @@ interface AppState {
   setMonthlyLimit: (value: number | null) => Promise<void>
   setTheme: (theme: Settings['theme']) => void
   toggleTheme: () => void
-  toggleSound: () => void
   setCurrency: (code: string) => void
   /** Guarda el nombre a mostrar (cadena vacia = "eligio no dar su nombre"). */
   setProfileName: (name: string) => Promise<void>
@@ -79,7 +78,6 @@ interface AppState {
 
 const DEFAULT_SETTINGS: Settings = {
   theme: 'light',
-  soundEnabled: true,
   currency: DEFAULT_CURRENCY_CODE,
 }
 
@@ -296,12 +294,6 @@ export const useAppStore = create<AppState>()(
       },
       toggleTheme: () => {
         get().setTheme(get().settings.theme === 'dark' ? 'light' : 'dark')
-      },
-      toggleSound: () => {
-        const next = !get().settings.soundEnabled
-        set((state) => ({ settings: { ...state.settings, soundEnabled: next } }))
-        const userId = get().userId
-        if (get().mode === 'cloud' && userId) void updateProfileRow(userId, { soundEnabled: next })
       },
       setCurrency: (code) => {
         set((state) => ({ settings: { ...state.settings, currency: code } }))

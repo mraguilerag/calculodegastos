@@ -40,7 +40,7 @@ export interface CloudData {
   expenses: Expense[]
   categories: Category[]
   budget: Budget
-  settings: Pick<Settings, 'theme' | 'soundEnabled' | 'currency'>
+  settings: Pick<Settings, 'theme' | 'currency'>
   /** null si la persona todavia no eligio un nombre para mostrar. */
   profileName: string | null
 }
@@ -67,7 +67,6 @@ export async function fetchCloudData(userId: string): Promise<CloudData> {
     },
     settings: {
       theme: (profileRes.data?.theme as Settings['theme']) ?? 'light',
-      soundEnabled: profileRes.data?.sound_enabled ?? true,
       currency: profileRes.data?.currency ?? 'USD',
     },
     profileName: profileRes.data?.name ?? null,
@@ -178,7 +177,6 @@ export async function updateProfileRow(
     monthlyLimit: number | null
     monthlyLimitCurrency: string | null
     theme: Settings['theme']
-    soundEnabled: boolean
     currency: string
     name: string
   }>
@@ -188,7 +186,6 @@ export async function updateProfileRow(
   if (patch.monthlyLimit !== undefined) dbPatch.monthly_limit = patch.monthlyLimit
   if (patch.monthlyLimitCurrency !== undefined) dbPatch.monthly_limit_currency = patch.monthlyLimitCurrency
   if (patch.theme !== undefined) dbPatch.theme = patch.theme
-  if (patch.soundEnabled !== undefined) dbPatch.sound_enabled = patch.soundEnabled
   if (patch.currency !== undefined) dbPatch.currency = patch.currency
   if (patch.name !== undefined) dbPatch.name = patch.name
 
@@ -207,7 +204,7 @@ export async function migrateLocalDataToCloud(
   localExpenses: Expense[],
   localCategories: Category[],
   localBudget: Budget,
-  localSettings: Pick<Settings, 'theme' | 'soundEnabled' | 'currency'>
+  localSettings: Pick<Settings, 'theme' | 'currency'>
 ): Promise<number> {
   if (localExpenses.length === 0 && localCategories.every((c) => c.isDefault)) {
     // nada que migrar mas que preferencias
@@ -215,7 +212,6 @@ export async function migrateLocalDataToCloud(
       monthlyLimit: localBudget.monthlyLimit,
       monthlyLimitCurrency: localBudget.monthlyLimit !== null ? localBudget.monthlyLimitCurrency ?? localSettings.currency : null,
       theme: localSettings.theme,
-      soundEnabled: localSettings.soundEnabled,
       currency: localSettings.currency,
     })
     return 0
@@ -259,7 +255,6 @@ export async function migrateLocalDataToCloud(
     monthlyLimit: localBudget.monthlyLimit,
     monthlyLimitCurrency: localBudget.monthlyLimit !== null ? localBudget.monthlyLimitCurrency ?? localSettings.currency : null,
     theme: localSettings.theme,
-    soundEnabled: localSettings.soundEnabled,
     currency: localSettings.currency,
   })
 

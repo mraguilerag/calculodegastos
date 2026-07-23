@@ -1,5 +1,3 @@
-import { useAppStore } from '../store/useAppStore'
-
 let ctx: AudioContext | null = null
 
 export function getAudioContext(): AudioContext | null {
@@ -38,7 +36,6 @@ interface Tone {
 }
 
 async function playTones(tones: Tone[]) {
-  if (!useAppStore.getState().settings.soundEnabled) return
   const audioCtx = getAudioContext()
   if (!audioCtx) return
   if (audioCtx.state === 'suspended') {
@@ -91,5 +88,4 @@ export const sound = {
       { freq: 300, start: 0, duration: 0.1, type: 'sine', gain: 0.16 },
       { freq: 260, start: 0.11, duration: 0.14, type: 'sine', gain: 0.16 },
     ]),
-  toggle: () => playTones([{ freq: 990, start: 0, duration: 0.07, type: 'sine', gain: 0.14 }]),
 }

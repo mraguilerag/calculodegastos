@@ -3,8 +3,7 @@ import { motion } from 'framer-motion'
 import { useAppStore } from '../../store/useAppStore'
 import { useSessionStore } from '../../store/useSessionStore'
 import { GlassCard } from '../ui/GlassCard'
-import { sound, primeAudio } from '../../lib/sound'
-import { bgm } from '../../lib/bgm'
+import { sound } from '../../lib/sound'
 import { CurrencyPicker } from './CurrencyPicker'
 import { AnimatedHeart } from '../heart/AnimatedHeart'
 import { EditNameDialog } from '../auth/EditNameDialog'
@@ -18,9 +17,7 @@ function greetingName(profileName: string | null, email: string | null): string 
 
 export function Header() {
   const theme = useAppStore((s) => s.settings.theme)
-  const soundEnabled = useAppStore((s) => s.settings.soundEnabled)
   const toggleTheme = useAppStore((s) => s.toggleTheme)
-  const toggleSound = useAppStore((s) => s.toggleSound)
   const profileName = useAppStore((s) => s.profileName)
   const setProfileName = useAppStore((s) => s.setProfileName)
   const sessionMode = useSessionStore((s) => s.mode)
@@ -75,28 +72,6 @@ export function Header() {
         )}
         <div className="flex items-center gap-2">
           <CurrencyPicker />
-
-          <motion.button
-            type="button"
-            whileTap={{ scale: 0.9 }}
-            onClick={async () => {
-              const enabling = !soundEnabled
-              toggleSound()
-              if (enabling) {
-                await primeAudio()
-                sound.toggle()
-                void bgm.start()
-              } else {
-                bgm.stop()
-              }
-            }}
-            aria-label={soundEnabled ? 'Silenciar sonidos' : 'Activar sonidos'}
-            aria-pressed={soundEnabled}
-            title={soundEnabled ? 'Silenciar sonidos' : 'Activar sonidos'}
-            className="flex h-11 w-11 items-center justify-center rounded-full border border-white/70 dark:border-white/10 bg-white/70 dark:bg-night-700/70 text-lg shadow-[var(--shadow-glass-sm)]"
-          >
-            {soundEnabled ? '🔊' : '🔈'}
-          </motion.button>
 
           <motion.button
             type="button"

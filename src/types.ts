@@ -26,7 +26,6 @@ export interface Budget {
 
 export interface Settings {
   theme: 'light' | 'dark'
-  soundEnabled: boolean
   /** Codigo de moneda (ISO 4217), ver src/data/currencies.ts */
   currency: string
 }
