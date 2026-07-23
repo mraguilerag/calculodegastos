@@ -1,4 +1,3 @@
-import { lazy, Suspense } from 'react'
 import { motion } from 'framer-motion'
 import { useAppStore } from '../../store/useAppStore'
 import { useSessionStore } from '../../store/useSessionStore'
@@ -6,8 +5,7 @@ import { GlassCard } from '../ui/GlassCard'
 import { sound, primeAudio } from '../../lib/sound'
 import { bgm } from '../../lib/bgm'
 import { CurrencyPicker } from './CurrencyPicker'
-
-const HeartScene = lazy(() => import('../heart/HeartScene').then((m) => ({ default: m.HeartScene })))
+import { AnimatedHeart } from '../heart/AnimatedHeart'
 
 function greetingName(profileName: string | null, email: string | null): string {
   if (profileName) return profileName
@@ -29,15 +27,7 @@ export function Header() {
 
   return (
     <GlassCard padding="sm" tilt={false} className="flex flex-wrap items-center justify-between gap-4">
-      <Suspense
-        fallback={
-          <div className="flex h-28 w-28 flex-shrink-0 items-center justify-center text-5xl sm:h-32 sm:w-32">
-            💗
-          </div>
-        }
-      >
-        <HeartScene />
-      </Suspense>
+      <AnimatedHeart />
 
       <div className="w-full flex-1 text-center sm:w-auto">
         <h1 className="font-display text-4xl uppercase leading-none tracking-wide text-pink-600 dark:text-pink-300 sm:text-5xl">

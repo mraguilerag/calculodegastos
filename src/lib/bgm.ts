@@ -12,8 +12,10 @@ const BGM_VOLUME = 0.14
 const FALLBACK_VOLUME = 0.055
 
 // Placeholder honesto: arpegio corto y alegre (pentatonica mayor), NO es una
-// composicion pulida - solo relleno hasta que se agregue BGM_SRC.
-const FALLBACK_NOTES: number[] = [523.25, 659.25, 783.99, 659.25, 587.33, 783.99, 659.25, 523.25]
+// composicion pulida - solo relleno hasta que se agregue BGM_SRC. Se
+// mantiene corto (4 notas en vez de 8) para minimizar la creacion continua
+// de nodos de audio mientras no haya una pista real.
+const FALLBACK_NOTES: number[] = [523.25, 659.25, 783.99, 659.25]
 const NOTE_DURATION = 0.42
 const NOTE_GAP = 0.05
 
