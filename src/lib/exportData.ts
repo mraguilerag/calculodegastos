@@ -17,7 +17,7 @@ export function exportExpensesToCsv(expenses: Expense[], categories: Category[],
   for (const e of sorted) {
     rows.push([
       formatDisplayDate(e.date),
-      categoryMap.get(e.categoryId) ?? e.categoryId,
+      e.categoryId === null ? 'Sin categoría' : categoryMap.get(e.categoryId) ?? e.categoryId,
       e.description,
       e.amount.toFixed(2),
       currencyCode,

@@ -2,6 +2,7 @@ import { startOfWeek, startOfMonth, startOfYear, startOfDay, format } from 'date
 import { es } from 'date-fns/locale'
 import type { Expense, Totals } from '../types'
 import type { Currency } from '../data/currencies'
+import { UNCATEGORIZED_ID } from '../data/defaultCategories'
 
 /** Convierte "yyyy-MM-dd" a Date local (evita corrimientos de zona horaria de parseISO/UTC). */
 export function parseLocalDate(iso: string): Date {
@@ -52,7 +53,8 @@ export function formatGroupLabel(iso: string): string {
 export function getTotalsByCategory(expenses: Expense[]): Record<string, number> {
   const map: Record<string, number> = {}
   for (const e of expenses) {
-    map[e.categoryId] = (map[e.categoryId] ?? 0) + e.amount
+    const key = e.categoryId ?? UNCATEGORIZED_ID
+    map[key] = (map[key] ?? 0) + e.amount
   }
   return map
 }

@@ -9,6 +9,17 @@ export const DEFAULT_CATEGORIES: Category[] = [
   { id: 'otros', name: 'Otros', icon: '🏷️', color: '#c9b8a8', isDefault: true },
 ]
 
+export const UNCATEGORIZED_ID = '__uncategorized__'
+
+/** Categoria virtual (no existe en la base de datos) para gastos sin categoria asignada. */
+export const UNCATEGORIZED_CATEGORY: Category = {
+  id: UNCATEGORIZED_ID,
+  name: 'Sin categoría',
+  icon: '🚫',
+  color: '#b7b7c2',
+  isDefault: true,
+}
+
 export const CATEGORY_COLOR_PALETTE = [
   '#ff9eb5',
   '#b7a3f0',

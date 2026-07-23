@@ -11,6 +11,7 @@ import {
   updateExpenseRow,
   deleteExpenseRow,
   insertCategoryRow,
+  updateCategoryRow,
   deleteCategoryRow,
   reassignExpensesCategory,
   updateProfileRow,
@@ -20,9 +21,15 @@ import { consumePendingMigration } from '../lib/pendingMigration'
 
 export interface NewExpenseInput {
   amount: number | string
-  categoryId: string
+  categoryId: string | null
   description?: string
   date?: string
+}
+
+export interface CategoryPatch {
+  name?: string
+  icon?: string
+  color?: string
 }
 
 export interface NewCategoryInput {
@@ -50,6 +57,7 @@ interface AppState {
   deleteExpense: (id: string) => Promise<void>
 
   addCategory: (input: NewCategoryInput) => Promise<Category>
+  updateCategory: (id: string, patch: CategoryPatch) => Promise<void>
   deleteCategory: (id: string) => Promise<void>
 
   setMonthlyLimit: (value: number | null) => Promise<void>
@@ -127,7 +135,6 @@ export const useAppStore = create<AppState>()(
 
       addExpense: async (input) => {
         const amount = normalizeAmount(input.amount)
-        if (!input.categoryId) throw new Error('Elige una categoria.')
         const date = input.date || todayISO()
         const description = (input.description ?? '').trim()
 
@@ -182,7 +189,7 @@ export const useAppStore = create<AppState>()(
         if (!trimmed) throw new Error('El nombre de la categoria no puede estar vacio.')
         const existing = get().categories
         const color = input.color || CATEGORY_COLOR_PALETTE[existing.length % CATEGORY_COLOR_PALETTE.length]
-        const icon = input.icon || '🐾'
+        const icon = input.icon || '🏷️'
 
         if (get().mode === 'cloud') {
           const userId = get().userId
@@ -202,10 +209,36 @@ export const useAppStore = create<AppState>()(
         return category
       },
 
+      updateCategory: async (id, patch) => {
+        const normalizedPatch: CategoryPatch = {}
+        if (patch.name !== undefined) {
+          const trimmed = patch.name.trim()
+          if (!trimmed) throw new Error('El nombre de la categoria no puede estar vacio.')
+          normalizedPatch.name = trimmed
+        }
+        if (patch.icon !== undefined) normalizedPatch.icon = patch.icon
+        if (patch.color !== undefined) normalizedPatch.color = patch.color
+
+        if (get().mode === 'cloud') {
+          await updateCategoryRow(id, normalizedPatch)
+        }
+
+        set((state) => ({
+          categories: state.categories.map((c) => (c.id === id ? { ...c, ...normalizedPatch } : c)),
+        }))
+      },
+
       deleteCategory: async (id) => {
-        const target = get().categories.find((c) => c.id === id)
-        if (!target || target.isDefault) return
-        const fallbackId = get().categories.find((c) => c.id === 'otros' || c.name === 'Otros')?.id ?? 'otros'
+        const existing = get().categories
+        if (existing.length <= 1) {
+          throw new Error('No puedes eliminar tu unica categoria.')
+        }
+        const target = existing.find((c) => c.id === id)
+        if (!target) return
+
+        const remaining = existing.filter((c) => c.id !== id)
+        const fallbackId =
+          remaining.find((c) => c.id === 'otros' || c.name.toLowerCase() === 'otros')?.id ?? remaining[0].id
 
         if (get().mode === 'cloud') {
           const userId = get().userId

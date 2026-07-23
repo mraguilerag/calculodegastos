@@ -27,7 +27,7 @@ function mapExpenseRow(row: {
   return {
     id: row.id,
     amount: Number(row.amount),
-    categoryId: row.category_id ?? 'otros',
+    categoryId: row.category_id,
     description: row.description,
     date: row.expense_date,
     createdAt: new Date(row.created_at).getTime(),
@@ -71,7 +71,7 @@ export async function fetchCloudData(userId: string): Promise<CloudData> {
 
 export async function insertExpenseRow(
   userId: string,
-  input: { amount: number; categoryId: string; description: string; date: string }
+  input: { amount: number; categoryId: string | null; description: string; date: string }
 ): Promise<Expense> {
   const client = requireClient()
   const { data, error } = await client
@@ -91,7 +91,7 @@ export async function insertExpenseRow(
 
 export async function updateExpenseRow(
   id: string,
-  patch: Partial<{ amount: number; categoryId: string; description: string; date: string }>
+  patch: Partial<{ amount: number; categoryId: string | null; description: string; date: string }>
 ): Promise<void> {
   const client = requireClient()
   const dbPatch: Record<string, unknown> = {}
@@ -122,6 +122,21 @@ export async function insertCategoryRow(
     .single()
   if (error) throw error
   return mapCategoryRow(data)
+}
+
+export async function updateCategoryRow(
+  id: string,
+  patch: Partial<{ name: string; icon: string; color: string }>
+): Promise<void> {
+  const client = requireClient()
+  const dbPatch: Record<string, unknown> = {}
+  if (patch.name !== undefined) dbPatch.name = patch.name
+  if (patch.icon !== undefined) dbPatch.icon = patch.icon
+  if (patch.color !== undefined) dbPatch.color = patch.color
+  if (Object.keys(dbPatch).length === 0) return
+
+  const { error } = await client.from('categories').update(dbPatch).eq('id', id)
+  if (error) throw error
 }
 
 export async function deleteCategoryRow(id: string): Promise<void> {
@@ -210,7 +225,7 @@ export async function migrateLocalDataToCloud(
   if (localExpenses.length > 0) {
     const rows = localExpenses.map((e) => ({
       user_id: userId,
-      category_id: localIdToCloudId.get(e.categoryId) ?? fallbackCategoryId,
+      category_id: e.categoryId === null ? null : localIdToCloudId.get(e.categoryId) ?? fallbackCategoryId,
       amount: e.amount,
       description: e.description,
       expense_date: e.date,

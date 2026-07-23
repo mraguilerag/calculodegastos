@@ -7,11 +7,18 @@ import { sound } from '../../lib/sound'
 interface CategoryPickerProps {
   categories: Category[]
   selectedId: string | null
-  onSelect: (id: string) => void
+  onSelect: (id: string | null) => void
   onRequestNew: () => void
+  onRequestManage: () => void
 }
 
-export function CategoryPicker({ categories, selectedId, onSelect, onRequestNew }: CategoryPickerProps) {
+export function CategoryPicker({
+  categories,
+  selectedId,
+  onSelect,
+  onRequestNew,
+  onRequestManage,
+}: CategoryPickerProps) {
   return (
     <div className="flex flex-wrap gap-2" role="radiogroup" aria-label="Categoria">
       {categories.map((cat) => {
@@ -50,6 +57,28 @@ export function CategoryPicker({ categories, selectedId, onSelect, onRequestNew 
           </motion.button>
         )
       })}
+
+      <motion.button
+        type="button"
+        role="radio"
+        aria-checked={selectedId === null}
+        whileTap={{ scale: 0.94 }}
+        onClick={() => {
+          sound.click()
+          onSelect(null)
+        }}
+        className={cn(
+          'inline-flex items-center gap-1.5 rounded-full border-2 px-3.5 py-2 text-sm font-heading font-medium',
+          'transition-all duration-200',
+          selectedId === null
+            ? 'border-ink-400 bg-ink-100/70 text-ink-900 dark:border-pink-200/40 dark:bg-white/10 dark:text-pink-50'
+            : 'border-transparent bg-white/60 dark:bg-night-700/50 text-ink-700 dark:text-pink-100/80 hover:-translate-y-0.5'
+        )}
+      >
+        <span aria-hidden>🚫</span>
+        <span>Sin categoria</span>
+      </motion.button>
+
       <motion.button
         type="button"
         whileTap={{ scale: 0.94 }}
@@ -61,6 +90,20 @@ export function CategoryPicker({ categories, selectedId, onSelect, onRequestNew 
       >
         <span aria-hidden>+</span>
         <span>Nueva categoria</span>
+      </motion.button>
+
+      <motion.button
+        type="button"
+        whileTap={{ scale: 0.94 }}
+        onClick={() => {
+          sound.click()
+          onRequestManage()
+        }}
+        aria-label="Gestionar categorias"
+        title="Gestionar categorias"
+        className="inline-flex items-center justify-center gap-1.5 rounded-full border-2 border-dashed border-ink-300/60 dark:border-pink-200/30 px-3 py-2 text-sm font-heading font-medium text-ink-500 dark:text-pink-200/60 hover:-translate-y-0.5 transition-all duration-200"
+      >
+        <span aria-hidden>⚙️</span>
       </motion.button>
     </div>
   )

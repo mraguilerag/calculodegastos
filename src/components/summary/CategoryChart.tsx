@@ -7,6 +7,7 @@ import { useCurrency } from '../../hooks/useCurrency'
 import type { PeriodNav } from '../../hooks/usePeriodNav'
 import { GlassCard } from '../ui/GlassCard'
 import { WeeklyBreakdown } from './WeeklyBreakdown'
+import { UNCATEGORIZED_CATEGORY } from '../../data/defaultCategories'
 
 const SIZE = 168
 const STROKE = 24
@@ -29,7 +30,7 @@ export function CategoryChart({ nav }: CategoryChartProps) {
     if (total <= 0) return { total: 0, items: [] as Array<{ id: string; name: string; icon: string; color: string; amount: number; fraction: number; offset: number }> }
 
     let cumulative = 0
-    const items = categories
+    const items = [...categories, UNCATEGORIZED_CATEGORY]
       .map((cat) => ({ cat, amount: byCategory[cat.id] ?? 0 }))
       .filter((e) => e.amount > 0)
       .sort((a, b) => b.amount - a.amount)

@@ -12,6 +12,7 @@ import { useToast } from '../ui/ToastProvider'
 import { sound } from '../../lib/sound'
 import { formatMoney, formatGroupLabel } from '../../lib/dates'
 import { useCurrency } from '../../hooks/useCurrency'
+import { UNCATEGORIZED_CATEGORY } from '../../data/defaultCategories'
 
 interface ExpenseHistoryProps {
   nav: PeriodNav
@@ -64,7 +65,7 @@ export function ExpenseHistory({ nav }: ExpenseHistoryProps) {
 
   async function handleSave(
     id: string,
-    patch: { amount: string; categoryId: string; description: string; date: string }
+    patch: { amount: string; categoryId: string | null; description: string; date: string }
   ) {
     try {
       await updateExpense(id, patch)
@@ -132,7 +133,11 @@ export function ExpenseHistory({ nav }: ExpenseHistoryProps) {
                 <ExpenseListItem
                   key={expense.id}
                   expense={expense}
-                  category={categoryMap.get(expense.categoryId) ?? fallbackCategory}
+                  category={
+                    expense.categoryId === null
+                      ? UNCATEGORIZED_CATEGORY
+                      : categoryMap.get(expense.categoryId) ?? fallbackCategory
+                  }
                   onEdit={() => setEditingId(expense.id)}
                   onDelete={() => setDeletingId(expense.id)}
                 />

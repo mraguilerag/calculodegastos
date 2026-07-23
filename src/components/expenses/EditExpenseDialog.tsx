@@ -12,13 +12,13 @@ interface EditExpenseDialogProps {
   expense: Expense | null
   categories: Category[]
   onClose: () => void
-  onSave: (id: string, patch: { amount: string; categoryId: string; description: string; date: string }) => void
+  onSave: (id: string, patch: { amount: string; categoryId: string | null; description: string; date: string }) => void
 }
 
 export function EditExpenseDialog({ expense, categories, onClose, onSave }: EditExpenseDialogProps) {
   const currency = useCurrency()
   const [amount, setAmount] = useState('')
-  const [categoryId, setCategoryId] = useState('')
+  const [categoryId, setCategoryId] = useState<string | null>(null)
   const [description, setDescription] = useState('')
   const [date, setDate] = useState('')
 
@@ -84,10 +84,11 @@ export function EditExpenseDialog({ expense, categories, onClose, onSave }: Edit
               <Field label="Categoria" htmlFor="edit-category">
                 <select
                   id="edit-category"
-                  value={categoryId}
-                  onChange={(e) => setCategoryId(e.target.value)}
+                  value={categoryId ?? ''}
+                  onChange={(e) => setCategoryId(e.target.value === '' ? null : e.target.value)}
                   className={inputClasses}
                 >
+                  <option value="">🚫 Sin categoria</option>
                   {categories.map((c) => (
                     <option key={c.id} value={c.id}>
                       {c.icon} {c.name}

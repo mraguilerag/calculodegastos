@@ -1,4 +1,4 @@
-import { useRef, useState, type FormEvent } from 'react'
+import { useEffect, useRef, useState, type FormEvent } from 'react'
 import { motion } from 'framer-motion'
 import { useAppStore } from '../../store/useAppStore'
 import { todayISO } from '../../lib/dates'
@@ -6,7 +6,8 @@ import { GlassCard } from '../ui/GlassCard'
 import { Field, inputClasses } from '../ui/Field'
 import { Button } from '../ui/Button'
 import { CategoryPicker } from './CategoryPicker'
-import { NewCategoryDialog } from './NewCategoryDialog'
+import { CategoryFormDialog } from './CategoryFormDialog'
+import { ManageCategoriesDialog } from './ManageCategoriesDialog'
 import { useToast } from '../ui/ToastProvider'
 import { sound } from '../../lib/sound'
 import { useCurrency } from '../../hooks/useCurrency'
@@ -27,12 +28,19 @@ export function ExpenseForm() {
   const [date, setDate] = useState(todayISO())
   const [categoryId, setCategoryId] = useState<string | null>(categories[0]?.id ?? null)
   const [newCategoryOpen, setNewCategoryOpen] = useState(false)
+  const [manageOpen, setManageOpen] = useState(false)
   const [justSaved, setJustSaved] = useState(false)
+
+  useEffect(() => {
+    if (categoryId && !categories.some((c) => c.id === categoryId)) {
+      setCategoryId(null)
+    }
+  }, [categories, categoryId])
 
   async function handleSubmit(e: FormEvent) {
     e.preventDefault()
     try {
-      await addExpense({ amount, categoryId: categoryId ?? '', description, date })
+      await addExpense({ amount, categoryId, description, date })
       setAmount('')
       setDescription('')
       setDate(todayISO())
@@ -109,6 +117,7 @@ export function ExpenseForm() {
               selectedId={categoryId}
               onSelect={setCategoryId}
               onRequestNew={() => setNewCategoryOpen(true)}
+              onRequestManage={() => setManageOpen(true)}
             />
           </div>
         </Field>
@@ -136,11 +145,13 @@ export function ExpenseForm() {
         </motion.div>
       </form>
 
-      <NewCategoryDialog
+      <CategoryFormDialog
         open={newCategoryOpen}
+        mode="create"
         onClose={() => setNewCategoryOpen(false)}
-        onCreate={handleCreateCategory}
+        onSubmit={handleCreateCategory}
       />
+      <ManageCategoriesDialog open={manageOpen} onClose={() => setManageOpen(false)} />
       {portal}
     </GlassCard>
   )

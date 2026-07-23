@@ -9,7 +9,7 @@ export interface Category {
 export interface Expense {
   id: string
   amount: number
-  categoryId: string
+  categoryId: string | null
   description: string
   /** ISO date string, yyyy-MM-dd (fecha local, no UTC) */
   date: string
