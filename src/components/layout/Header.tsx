@@ -57,75 +57,80 @@ export function Header() {
             Hola, {displayName}
           </p>
         )}
-        {sessionMode === 'local' && (
-          <button
+        <div className="flex items-center gap-2">
+          <CurrencyPicker />
+
+          <motion.button
             type="button"
+            whileTap={{ scale: 0.9 }}
+            onClick={async () => {
+              const enabling = !soundEnabled
+              toggleSound()
+              if (enabling) {
+                await primeAudio()
+                sound.toggle()
+                void bgm.start()
+              } else {
+                bgm.stop()
+              }
+            }}
+            aria-label={soundEnabled ? 'Silenciar sonidos' : 'Activar sonidos'}
+            aria-pressed={soundEnabled}
+            title={soundEnabled ? 'Silenciar sonidos' : 'Activar sonidos'}
+            className="flex h-11 w-11 items-center justify-center rounded-full border border-white/70 dark:border-white/10 bg-white/70 dark:bg-night-700/70 text-lg shadow-[var(--shadow-glass-sm)]"
+          >
+            {soundEnabled ? '🔊' : '🔈'}
+          </motion.button>
+
+          <motion.button
+            type="button"
+            whileTap={{ scale: 0.9, rotate: -12 }}
             onClick={() => {
               sound.click()
-              requestAuth()
+              toggleTheme()
             }}
-            className="font-heading text-xs font-semibold text-pink-600 underline underline-offset-2 dark:text-pink-300"
+            aria-label={theme === 'dark' ? 'Cambiar a tema claro' : 'Cambiar a tema oscuro'}
+            title={theme === 'dark' ? 'Tema claro' : 'Tema oscuro'}
+            className="flex h-11 w-11 items-center justify-center rounded-full border border-white/70 dark:border-white/10 bg-white/70 dark:bg-night-700/70 text-lg shadow-[var(--shadow-glass-sm)]"
           >
-            Iniciar sesión
-          </button>
-        )}
+            {theme === 'dark' ? '🌙' : '☀️'}
+          </motion.button>
 
-          <div className="flex items-center gap-2">
-            <CurrencyPicker />
-
+          {sessionMode === 'cloud' && (
             <motion.button
               type="button"
               whileTap={{ scale: 0.9 }}
-              onClick={async () => {
-                const enabling = !soundEnabled
-                toggleSound()
-                if (enabling) {
-                  await primeAudio()
-                  sound.toggle()
-                  void bgm.start()
-                } else {
-                  bgm.stop()
-                }
-              }}
-              aria-label={soundEnabled ? 'Silenciar sonidos' : 'Activar sonidos'}
-              aria-pressed={soundEnabled}
-              title={soundEnabled ? 'Silenciar sonidos' : 'Activar sonidos'}
-              className="flex h-11 w-11 items-center justify-center rounded-full border border-white/70 dark:border-white/10 bg-white/70 dark:bg-night-700/70 text-lg shadow-[var(--shadow-glass-sm)]"
-            >
-              {soundEnabled ? '🔊' : '🔈'}
-            </motion.button>
-
-            <motion.button
-              type="button"
-              whileTap={{ scale: 0.9, rotate: -12 }}
               onClick={() => {
                 sound.click()
-                toggleTheme()
+                void signOut()
               }}
-              aria-label={theme === 'dark' ? 'Cambiar a tema claro' : 'Cambiar a tema oscuro'}
-              title={theme === 'dark' ? 'Tema claro' : 'Tema oscuro'}
+              aria-label="Cerrar sesión"
+              title="Cerrar sesión"
               className="flex h-11 w-11 items-center justify-center rounded-full border border-white/70 dark:border-white/10 bg-white/70 dark:bg-night-700/70 text-lg shadow-[var(--shadow-glass-sm)]"
             >
-              {theme === 'dark' ? '🌙' : '☀️'}
+              🚪
             </motion.button>
+          )}
 
-            {sessionMode === 'cloud' && (
-              <motion.button
-                type="button"
-                whileTap={{ scale: 0.9 }}
-                onClick={() => {
-                  sound.click()
-                  void signOut()
-                }}
-                aria-label="Cerrar sesión"
-                title="Cerrar sesión"
-                className="flex h-11 w-11 items-center justify-center rounded-full border border-white/70 dark:border-white/10 bg-white/70 dark:bg-night-700/70 text-lg shadow-[var(--shadow-glass-sm)]"
-              >
+          {sessionMode === 'local' && (
+            <motion.button
+              type="button"
+              whileTap={{ scale: 0.9 }}
+              onClick={() => {
+                sound.click()
+                requestAuth()
+              }}
+              aria-label="Iniciar sesión"
+              title="Iniciar sesión"
+              className="flex h-11 w-11 items-center justify-center rounded-full border border-white/70 dark:border-white/10 bg-white/70 dark:bg-night-700/70 text-lg shadow-[var(--shadow-glass-sm)]"
+            >
+              <span aria-hidden className="inline-block -scale-x-100">
                 🚪
-              </motion.button>
-            )}
-          </div>
+              </span>
+            </motion.button>
+          )}
         </div>
+      </div>
     </GlassCard>
   )
 }

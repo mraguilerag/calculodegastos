@@ -133,11 +133,16 @@ export function AuthScreen({ initialTab, onBack }: AuthScreenProps) {
       } else {
         const state = useAppStore.getState()
         const hasLocalData = state.expenses.length > 0 || state.categories.some((c) => !c.isDefault)
-        const { error: signUpError } = await supabase!.auth.signUp({ email, password })
+        const { data: signUpData, error: signUpError } = await supabase!.auth.signUp({ email, password })
         if (signUpError) throw signUpError
         if (hasLocalData) markPendingMigration()
         sound.check()
-        setSignupDone(true)
+        if (signUpData.session) {
+          // confirmacion de correo desactivada en el proyecto: ya hay sesion activa,
+          // la maneja el listener global (useSessionStore) igual que en login
+        } else {
+          setSignupDone(true)
+        }
       }
     } catch (err) {
       sound.error()
