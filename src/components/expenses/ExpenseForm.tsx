@@ -7,7 +7,6 @@ import { Field, inputClasses } from '../ui/Field'
 import { Button } from '../ui/Button'
 import { CategoryPicker } from './CategoryPicker'
 import { CategoryFormDialog } from './CategoryFormDialog'
-import { ManageCategoriesDialog } from './ManageCategoriesDialog'
 import { useToast } from '../ui/ToastProvider'
 import { sound } from '../../lib/sound'
 import { useCurrency } from '../../hooks/useCurrency'
@@ -29,7 +28,6 @@ export function ExpenseForm() {
   const [date, setDate] = useState(todayISO())
   const [categoryId, setCategoryId] = useState<string | null>(categories[0]?.id ?? null)
   const [newCategoryOpen, setNewCategoryOpen] = useState(false)
-  const [manageOpen, setManageOpen] = useState(false)
   const [justSaved, setJustSaved] = useState(false)
   const [repeatEnabled, setRepeatEnabled] = useState(false)
   const [repeatMonths, setRepeatMonths] = useState('3')
@@ -141,7 +139,6 @@ export function ExpenseForm() {
               selectedId={categoryId}
               onSelect={setCategoryId}
               onRequestNew={() => setNewCategoryOpen(true)}
-              onRequestManage={() => setManageOpen(true)}
             />
           </div>
         </Field>
@@ -214,7 +211,6 @@ export function ExpenseForm() {
         onClose={() => setNewCategoryOpen(false)}
         onSubmit={handleCreateCategory}
       />
-      <ManageCategoriesDialog open={manageOpen} onClose={() => setManageOpen(false)} />
       {portal}
     </GlassCard>
   )
