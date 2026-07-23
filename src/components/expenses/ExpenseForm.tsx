@@ -26,7 +26,7 @@ export function ExpenseForm() {
   const [amountError, setAmountError] = useState<string | null>(null)
   const [description, setDescription] = useState('')
   const [date, setDate] = useState(todayISO())
-  const [categoryId, setCategoryId] = useState<string | null>(categories[0]?.id ?? null)
+  const [categoryId, setCategoryId] = useState<string | null>(null)
   const [newCategoryOpen, setNewCategoryOpen] = useState(false)
   const [justSaved, setJustSaved] = useState(false)
   const [repeatEnabled, setRepeatEnabled] = useState(false)
