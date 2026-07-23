@@ -16,7 +16,6 @@ import {
   reassignExpensesCategory,
   updateProfileRow,
   migrateLocalDataToCloud,
-  deleteAllUserData,
 } from '../lib/cloudSync'
 import { consumePendingMigration } from '../lib/pendingMigration'
 
@@ -67,8 +66,6 @@ interface AppState {
   setCurrency: (code: string) => void
   /** Guarda el nombre a mostrar (cadena vacia = "eligio no dar su nombre"). */
   setProfileName: (name: string) => Promise<void>
-  /** Borra todos los gastos, categorias y el perfil de la cuenta en la nube (irreversible). */
-  deleteAllData: () => Promise<void>
 
   /** Carga los datos de la nube tras iniciar sesion y pasa el store a modo 'cloud'. Devuelve cuantos gastos locales se migraron, si corresponde. */
   loadFromCloud: (userId: string) => Promise<number>
@@ -307,18 +304,6 @@ export const useAppStore = create<AppState>()(
           await updateProfileRow(userId, { name })
         }
         set({ profileName: name })
-      },
-
-      deleteAllData: async () => {
-        const userId = get().userId
-        if (get().mode !== 'cloud' || !userId) throw new Error('No hay sesion activa.')
-        await deleteAllUserData(userId)
-        set({
-          expenses: [],
-          categories: DEFAULT_CATEGORIES,
-          budget: { monthlyLimit: null, monthlyLimitCurrency: null },
-          profileName: null,
-        })
       },
 
       loadFromCloud: async (userId) => {

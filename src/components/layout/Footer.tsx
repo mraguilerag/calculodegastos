@@ -8,11 +8,11 @@ import { exportExpensesToCsv } from '../../lib/exportData'
 import { useToast } from '../ui/ToastProvider'
 import { sound } from '../../lib/sound'
 import { ConfirmDialog } from '../ui/ConfirmDialog'
+import { supabase } from '../../lib/supabaseClient'
 
 export function Footer() {
   const expenses = useAppStore((s) => s.expenses)
   const categories = useAppStore((s) => s.categories)
-  const deleteAllData = useAppStore((s) => s.deleteAllData)
   const sessionMode = useSessionStore((s) => s.mode)
   const signOut = useSessionStore((s) => s.signOut)
   const ratesStatus = useExchangeRateStore((s) => s.status)
@@ -33,17 +33,19 @@ export function Footer() {
   }
 
   async function handleConfirmDelete() {
+    if (!supabase) return
     setDeleting(true)
     try {
-      await deleteAllData()
+      const { error } = await supabase.functions.invoke('delete-account')
+      if (error) throw error
       sound.delete()
       await signOut()
+      setDeleteOpen(false)
     } catch (err) {
       sound.error()
       showToast(err instanceof Error ? err.message : 'No se pudo eliminar la cuenta.', { variant: 'error' })
     } finally {
       setDeleting(false)
-      setDeleteOpen(false)
     }
   }
 
@@ -100,7 +102,7 @@ export function Footer() {
       <ConfirmDialog
         open={deleteOpen}
         title="Eliminar cuenta"
-        description="Esta accion es irreversible: se borraran todos tus gastos, categorias y tu perfil. Vas a cerrar sesion y no vas a poder recuperar estos datos."
+        description="Esta accion es irreversible: se borra tu cuenta por completo (gastos, categorias, perfil y tu acceso). No vas a poder volver a iniciar sesion con este correo ni recuperar estos datos."
         confirmLabel={deleting ? 'Eliminando...' : 'Eliminar todo'}
         variant="danger"
         onConfirm={handleConfirmDelete}
