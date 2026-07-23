@@ -2,6 +2,7 @@ import { motion } from 'framer-motion'
 import type { Category, Expense } from '../../types'
 import { formatDisplayDate, formatMoney } from '../../lib/dates'
 import { useCurrency } from '../../hooks/useCurrency'
+import { useConvert } from '../../hooks/useConvert'
 
 interface ExpenseListItemProps {
   expense: Expense
@@ -12,6 +13,8 @@ interface ExpenseListItemProps {
 
 export function ExpenseListItem({ expense, category, onEdit, onDelete }: ExpenseListItemProps) {
   const currency = useCurrency()
+  const convert = useConvert()
+  const displayAmount = convert(expense.amount, expense.currency)
   return (
     <motion.li
       layout
@@ -39,7 +42,7 @@ export function ExpenseListItem({ expense, category, onEdit, onDelete }: Expense
       </div>
 
       <span className="whitespace-nowrap font-heading text-sm font-semibold text-pink-600 dark:text-pink-300">
-        {formatMoney(expense.amount, currency)}
+        {formatMoney(displayAmount, currency)}
       </span>
 
       <div className="flex flex-shrink-0 gap-1">

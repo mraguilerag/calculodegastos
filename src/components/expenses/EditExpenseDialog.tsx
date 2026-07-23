@@ -4,7 +4,7 @@ import { useEffect, useState, type FormEvent } from 'react'
 import type { Category, Expense } from '../../types'
 import { Button } from '../ui/Button'
 import { Field, inputClasses } from '../ui/Field'
-import { useCurrency } from '../../hooks/useCurrency'
+import { getCurrency } from '../../data/currencies'
 import { parseAmountInput, amountErrorMessage } from '../../lib/amount'
 
 interface EditExpenseDialogProps {
@@ -15,7 +15,9 @@ interface EditExpenseDialogProps {
 }
 
 export function EditExpenseDialog({ expense, categories, onClose, onSave }: EditExpenseDialogProps) {
-  const currency = useCurrency()
+  // Se edita en la moneda original del gasto, no en la moneda de visualizacion activa,
+  // para no reinterpretar un monto historico con una tasa/moneda distinta a la real.
+  const currency = getCurrency(expense?.currency ?? 'USD')
   const [amount, setAmount] = useState('')
   const [amountError, setAmountError] = useState<string | null>(null)
   const [categoryId, setCategoryId] = useState<string | null>(null)
@@ -68,7 +70,7 @@ export function EditExpenseDialog({ expense, categories, onClose, onSave }: Edit
             <h2 className="font-heading text-lg font-semibold text-ink-900 dark:text-pink-50">Editar gasto</h2>
 
             <div className="mt-4 flex flex-col gap-4">
-              <Field label="Monto" htmlFor="edit-amount">
+              <Field label={`Monto (${currency.code})`} htmlFor="edit-amount">
                 <div className="relative">
                   <span className="pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 font-heading text-pink-500">
                     {currency.symbol}

@@ -3,6 +3,7 @@ import { motion } from 'framer-motion'
 import { useAppStore } from '../../store/useAppStore'
 import { computeTotals, formatMoney } from '../../lib/dates'
 import { useCurrency } from '../../hooks/useCurrency'
+import { useConvert } from '../../hooks/useConvert'
 import { GlassCard } from '../ui/GlassCard'
 
 const PERIODS: Array<{ key: keyof ReturnType<typeof computeTotals>; label: string }> = [
@@ -15,7 +16,12 @@ const PERIODS: Array<{ key: keyof ReturnType<typeof computeTotals>; label: strin
 export function TotalsGrid() {
   const expenses = useAppStore((s) => s.expenses)
   const currency = useCurrency()
-  const totals = useMemo(() => computeTotals(expenses), [expenses])
+  const convert = useConvert()
+  const convertedExpenses = useMemo(
+    () => expenses.map((e) => ({ ...e, amount: convert(e.amount, e.currency) })),
+    [expenses, convert]
+  )
+  const totals = useMemo(() => computeTotals(convertedExpenses), [convertedExpenses])
 
   return (
     <section

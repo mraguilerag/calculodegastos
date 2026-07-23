@@ -93,6 +93,17 @@ function normalizeAmount(value: number | string): number {
   return Math.round(num * 100) / 100
 }
 
+/** Gastos guardados antes de que existiera el campo currency: se asume que fueron registrados en la moneda actual de la cuenta. */
+function backfillExpenseCurrency(expenses: Expense[], fallbackCurrency: string): Expense[] {
+  return expenses.map((e) => (e.currency ? e : { ...e, currency: fallbackCurrency }))
+}
+
+/** Presupuestos guardados antes de que existiera el campo monthlyLimitCurrency. */
+function backfillBudgetCurrency(budget: Partial<Budget> | undefined, fallbackCurrency: string): Budget {
+  if (!budget || budget.monthlyLimit == null) return { monthlyLimit: null, monthlyLimitCurrency: null }
+  return { monthlyLimit: budget.monthlyLimit, monthlyLimitCurrency: budget.monthlyLimitCurrency ?? fallbackCurrency }
+}
+
 interface LocalSnapshot {
   expenses: Expense[]
   categories: Category[]
@@ -105,7 +116,7 @@ function readLocalSnapshot(): LocalSnapshot {
   const fallback: LocalSnapshot = {
     expenses: [],
     categories: DEFAULT_CATEGORIES,
-    budget: { monthlyLimit: null },
+    budget: { monthlyLimit: null, monthlyLimitCurrency: null },
     settings: DEFAULT_SETTINGS,
   }
   try {
@@ -113,11 +124,12 @@ function readLocalSnapshot(): LocalSnapshot {
     if (!raw) return fallback
     const parsed = JSON.parse(raw)
     const s = parsed?.state ?? {}
+    const settings: Settings = { ...DEFAULT_SETTINGS, ...(s.settings ?? {}) }
     return {
-      expenses: Array.isArray(s.expenses) ? s.expenses : [],
+      expenses: Array.isArray(s.expenses) ? backfillExpenseCurrency(s.expenses, settings.currency) : [],
       categories: Array.isArray(s.categories) && s.categories.length ? s.categories : DEFAULT_CATEGORIES,
-      budget: s.budget ?? fallback.budget,
-      settings: { ...DEFAULT_SETTINGS, ...(s.settings ?? {}) },
+      budget: backfillBudgetCurrency(s.budget, settings.currency),
+      settings,
     }
   } catch {
     return fallback
@@ -131,7 +143,7 @@ export const useAppStore = create<AppState>()(
       userId: null,
       expenses: [],
       categories: DEFAULT_CATEGORIES,
-      budget: { monthlyLimit: null },
+      budget: { monthlyLimit: null, monthlyLimitCurrency: null },
       settings: DEFAULT_SETTINGS,
       profileName: null,
       reactionTick: 0,
@@ -140,11 +152,18 @@ export const useAppStore = create<AppState>()(
         const amount = normalizeAmount(input.amount)
         const date = input.date || todayISO()
         const description = (input.description ?? '').trim()
+        const currency = get().settings.currency
 
         if (get().mode === 'cloud') {
           const userId = get().userId
           if (!userId) throw new Error('No hay sesion activa.')
-          const expense = await insertExpenseRow(userId, { amount, categoryId: input.categoryId, description, date })
+          const expense = await insertExpenseRow(userId, {
+            amount,
+            categoryId: input.categoryId,
+            description,
+            date,
+            currency,
+          })
           set((state) => ({ expenses: [...state.expenses, expense], reactionTick: state.reactionTick + 1 }))
           return expense
         }
@@ -156,6 +175,7 @@ export const useAppStore = create<AppState>()(
           description,
           date,
           createdAt: Date.now(),
+          currency,
         }
         set((state) => ({
           expenses: [...state.expenses, expense],
@@ -260,12 +280,13 @@ export const useAppStore = create<AppState>()(
         if (value !== null && (!Number.isFinite(value) || value < 0)) {
           throw new Error('Ingresa un presupuesto valido.')
         }
+        const monthlyLimitCurrency = value !== null ? get().settings.currency : null
         if (get().mode === 'cloud') {
           const userId = get().userId
           if (!userId) throw new Error('No hay sesion activa.')
-          await updateProfileRow(userId, { monthlyLimit: value })
+          await updateProfileRow(userId, { monthlyLimit: value, monthlyLimitCurrency })
         }
-        set({ budget: { monthlyLimit: value } })
+        set({ budget: { monthlyLimit: value, monthlyLimitCurrency } })
       },
 
       setTheme: (theme) => {
@@ -303,7 +324,7 @@ export const useAppStore = create<AppState>()(
         set({
           expenses: [],
           categories: DEFAULT_CATEGORIES,
-          budget: { monthlyLimit: null },
+          budget: { monthlyLimit: null, monthlyLimitCurrency: null },
           profileName: null,
         })
       },
@@ -366,11 +387,17 @@ export const useAppStore = create<AppState>()(
         },
         removeItem: (name) => localStorage.removeItem(name),
       })),
-      version: 2,
+      version: 3,
       migrate: (persisted) => {
-        const p = (persisted ?? {}) as Partial<{ settings: Partial<Settings> }>
+        const p = (persisted ?? {}) as Partial<{
+          settings: Partial<Settings>
+          expenses: Expense[]
+          budget: Partial<Budget>
+        }>
         const settings: Settings = { ...DEFAULT_SETTINGS, ...(p.settings ?? {}) }
-        return { ...p, settings }
+        const expenses = Array.isArray(p.expenses) ? backfillExpenseCurrency(p.expenses, settings.currency) : []
+        const budget = backfillBudgetCurrency(p.budget, settings.currency)
+        return { ...p, settings, expenses, budget }
       },
       partialize: (state) => ({
         mode: state.mode,

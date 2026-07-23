@@ -14,10 +14,14 @@ export interface Expense {
   /** ISO date string, yyyy-MM-dd (fecha local, no UTC) */
   date: string
   createdAt: number
+  /** Codigo de moneda (ISO 4217) en la que se registro este gasto. */
+  currency: string
 }
 
 export interface Budget {
   monthlyLimit: number | null
+  /** Moneda en la que se definio monthlyLimit; null si nunca se definio un limite. */
+  monthlyLimitCurrency: string | null
 }
 
 export interface Settings {

@@ -4,6 +4,7 @@ import { useAppStore } from '../../store/useAppStore'
 import { getTotalsByCategory, formatMoney } from '../../lib/dates'
 import { filterExpensesByRange, getPeriodRange, getElapsedDays, previousPeriodLabel } from '../../lib/periods'
 import { useCurrency } from '../../hooks/useCurrency'
+import { useConvert } from '../../hooks/useConvert'
 import type { PeriodNav } from '../../hooks/usePeriodNav'
 import { GlassCard } from '../ui/GlassCard'
 import { WeeklyBreakdown } from './WeeklyBreakdown'
@@ -21,8 +22,16 @@ export function CategoryChart({ nav }: CategoryChartProps) {
   const expenses = useAppStore((s) => s.expenses)
   const categories = useAppStore((s) => s.categories)
   const currency = useCurrency()
+  const convert = useConvert()
+  const convertedExpenses = useMemo(
+    () => expenses.map((e) => ({ ...e, amount: convert(e.amount, e.currency) })),
+    [expenses, convert]
+  )
 
-  const periodExpenses = useMemo(() => filterExpensesByRange(expenses, nav.range), [expenses, nav.range])
+  const periodExpenses = useMemo(
+    () => filterExpensesByRange(convertedExpenses, nav.range),
+    [convertedExpenses, nav.range]
+  )
 
   const entries = useMemo(() => {
     const byCategory = getTotalsByCategory(periodExpenses)
@@ -46,9 +55,9 @@ export function CategoryChart({ nav }: CategoryChartProps) {
 
   const previousTotal = useMemo(() => {
     const previousRange = getPeriodRange(nav.granularity, nav.offset - 1)
-    const previousExpenses = filterExpensesByRange(expenses, previousRange)
+    const previousExpenses = filterExpensesByRange(convertedExpenses, previousRange)
     return previousExpenses.reduce((sum, e) => sum + e.amount, 0)
-  }, [expenses, nav.granularity, nav.offset])
+  }, [convertedExpenses, nav.granularity, nav.offset])
 
   const comparison = useMemo(() => {
     if (previousTotal <= 0) return null

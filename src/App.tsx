@@ -18,12 +18,14 @@ import { useThemeSync } from './hooks/useThemeSync'
 import { useAudioUnlock } from './hooks/useAudioUnlock'
 import { usePeriodNav } from './hooks/usePeriodNav'
 import { useSyncDataMode } from './hooks/useSyncDataMode'
+import { useExchangeRatesSync } from './hooks/useExchangeRatesSync'
 import { useSessionStore } from './store/useSessionStore'
 import { useAppStore } from './store/useAppStore'
 
 function AppShell() {
   useThemeSync()
   useAudioUnlock()
+  useExchangeRatesSync()
   const periodNav = usePeriodNav()
 
   return (

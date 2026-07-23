@@ -8,8 +8,12 @@ function csvEscape(value: string): string {
   return value
 }
 
-/** Exporta todos los gastos a un CSV y dispara la descarga en el navegador. */
-export function exportExpensesToCsv(expenses: Expense[], categories: Category[], currencyCode: string): void {
+/**
+ * Exporta todos los gastos a un CSV y dispara la descarga en el navegador.
+ * Usa el monto y la moneda originales de cada gasto (no convertidos a la
+ * moneda de visualizacion activa), para que el registro exportado sea exacto.
+ */
+export function exportExpensesToCsv(expenses: Expense[], categories: Category[]): void {
   const categoryMap = new Map(categories.map((c) => [c.id, c.name]))
   const rows = [['Fecha', 'Categoria', 'Descripcion', 'Monto', 'Moneda']]
 
@@ -20,7 +24,7 @@ export function exportExpensesToCsv(expenses: Expense[], categories: Category[],
       e.categoryId === null ? 'Sin categoría' : categoryMap.get(e.categoryId) ?? e.categoryId,
       e.description,
       e.amount.toFixed(2),
-      currencyCode,
+      e.currency,
     ])
   }
 

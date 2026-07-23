@@ -1,6 +1,9 @@
 import { useState } from 'react'
+import { formatDistanceToNow } from 'date-fns'
+import { es } from 'date-fns/locale'
 import { useAppStore } from '../../store/useAppStore'
 import { useSessionStore } from '../../store/useSessionStore'
+import { useExchangeRateStore } from '../../store/useExchangeRateStore'
 import { exportExpensesToCsv } from '../../lib/exportData'
 import { useToast } from '../ui/ToastProvider'
 import { sound } from '../../lib/sound'
@@ -9,10 +12,11 @@ import { ConfirmDialog } from '../ui/ConfirmDialog'
 export function Footer() {
   const expenses = useAppStore((s) => s.expenses)
   const categories = useAppStore((s) => s.categories)
-  const currencyCode = useAppStore((s) => s.settings.currency)
   const deleteAllData = useAppStore((s) => s.deleteAllData)
   const sessionMode = useSessionStore((s) => s.mode)
   const signOut = useSessionStore((s) => s.signOut)
+  const ratesStatus = useExchangeRateStore((s) => s.status)
+  const ratesFetchedAt = useExchangeRateStore((s) => s.fetchedAt)
   const { showToast } = useToast()
   const [deleteOpen, setDeleteOpen] = useState(false)
   const [deleting, setDeleting] = useState(false)
@@ -23,7 +27,7 @@ export function Footer() {
       showToast('Todavía no hay gastos para exportar', { variant: 'error' })
       return
     }
-    exportExpensesToCsv(expenses, categories, currencyCode)
+    exportExpensesToCsv(expenses, categories)
     sound.click()
     showToast('Datos exportados', { icon: '⬇️' })
   }
@@ -69,6 +73,29 @@ export function Footer() {
           </button>
         )}
       </div>
+
+      {ratesStatus === 'unavailable' && (
+        <p className="text-rose-500 dark:text-rose-300">
+          No se pudo obtener la tasa de cambio: los montos en otras monedas se muestran sin convertir.
+        </p>
+      )}
+      {ratesStatus === 'stale' && ratesFetchedAt !== null && (
+        <p className="text-amber-600 dark:text-amber-300">
+          Tasas de cambio actualizadas hace {formatDistanceToNow(ratesFetchedAt, { locale: es })} — puede haber
+          pequeñas diferencias.
+        </p>
+      )}
+      <p className="text-[0.65rem] text-ink-400 dark:text-pink-200/30">
+        Tasas de cambio via{' '}
+        <a
+          href="https://www.exchangerate-api.com"
+          target="_blank"
+          rel="noreferrer"
+          className="underline underline-offset-2"
+        >
+          exchangerate-api.com
+        </a>
+      </p>
 
       <ConfirmDialog
         open={deleteOpen}

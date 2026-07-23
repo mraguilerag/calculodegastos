@@ -23,6 +23,7 @@ function mapExpenseRow(row: {
   description: string
   expense_date: string
   created_at: string
+  currency: string
 }): Expense {
   return {
     id: row.id,
@@ -31,6 +32,7 @@ function mapExpenseRow(row: {
     description: row.description,
     date: row.expense_date,
     createdAt: new Date(row.created_at).getTime(),
+    currency: row.currency,
   }
 }
 
@@ -59,7 +61,10 @@ export async function fetchCloudData(userId: string): Promise<CloudData> {
   return {
     categories: categoriesRes.data.map(mapCategoryRow),
     expenses: expensesRes.data.map(mapExpenseRow),
-    budget: { monthlyLimit: profileRes.data?.monthly_limit ?? null },
+    budget: {
+      monthlyLimit: profileRes.data?.monthly_limit ?? null,
+      monthlyLimitCurrency: profileRes.data?.monthly_limit_currency ?? null,
+    },
     settings: {
       theme: (profileRes.data?.theme as Settings['theme']) ?? 'light',
       soundEnabled: profileRes.data?.sound_enabled ?? true,
@@ -71,7 +76,7 @@ export async function fetchCloudData(userId: string): Promise<CloudData> {
 
 export async function insertExpenseRow(
   userId: string,
-  input: { amount: number; categoryId: string | null; description: string; date: string }
+  input: { amount: number; categoryId: string | null; description: string; date: string; currency: string }
 ): Promise<Expense> {
   const client = requireClient()
   const { data, error } = await client
@@ -82,6 +87,7 @@ export async function insertExpenseRow(
       amount: input.amount,
       description: input.description,
       expense_date: input.date,
+      currency: input.currency,
     })
     .select()
     .single()
@@ -170,6 +176,7 @@ export async function updateProfileRow(
   userId: string,
   patch: Partial<{
     monthlyLimit: number | null
+    monthlyLimitCurrency: string | null
     theme: Settings['theme']
     soundEnabled: boolean
     currency: string
@@ -179,6 +186,7 @@ export async function updateProfileRow(
   const client = requireClient()
   const dbPatch: Record<string, unknown> = { updated_at: new Date().toISOString() }
   if (patch.monthlyLimit !== undefined) dbPatch.monthly_limit = patch.monthlyLimit
+  if (patch.monthlyLimitCurrency !== undefined) dbPatch.monthly_limit_currency = patch.monthlyLimitCurrency
   if (patch.theme !== undefined) dbPatch.theme = patch.theme
   if (patch.soundEnabled !== undefined) dbPatch.sound_enabled = patch.soundEnabled
   if (patch.currency !== undefined) dbPatch.currency = patch.currency
@@ -205,6 +213,7 @@ export async function migrateLocalDataToCloud(
     // nada que migrar mas que preferencias
     await updateProfileRow(userId, {
       monthlyLimit: localBudget.monthlyLimit,
+      monthlyLimitCurrency: localBudget.monthlyLimit !== null ? localBudget.monthlyLimitCurrency ?? localSettings.currency : null,
       theme: localSettings.theme,
       soundEnabled: localSettings.soundEnabled,
       currency: localSettings.currency,
@@ -240,6 +249,7 @@ export async function migrateLocalDataToCloud(
       amount: e.amount,
       description: e.description,
       expense_date: e.date,
+      currency: e.currency ?? localSettings.currency,
     }))
     const { error: insertError } = await client.from('expenses').insert(rows)
     if (insertError) throw insertError
@@ -247,6 +257,7 @@ export async function migrateLocalDataToCloud(
 
   await updateProfileRow(userId, {
     monthlyLimit: localBudget.monthlyLimit,
+    monthlyLimitCurrency: localBudget.monthlyLimit !== null ? localBudget.monthlyLimitCurrency ?? localSettings.currency : null,
     theme: localSettings.theme,
     soundEnabled: localSettings.soundEnabled,
     currency: localSettings.currency,

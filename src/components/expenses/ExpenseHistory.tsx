@@ -11,7 +11,7 @@ import { ConfirmDialog } from '../ui/ConfirmDialog'
 import { useToast } from '../ui/ToastProvider'
 import { sound } from '../../lib/sound'
 import { formatMoney, formatGroupLabel } from '../../lib/dates'
-import { useCurrency } from '../../hooks/useCurrency'
+import { getCurrency } from '../../data/currencies'
 import { UNCATEGORIZED_CATEGORY } from '../../data/defaultCategories'
 
 interface ExpenseHistoryProps {
@@ -24,7 +24,6 @@ export function ExpenseHistory({ nav }: ExpenseHistoryProps) {
   const updateExpense = useAppStore((s) => s.updateExpense)
   const deleteExpense = useAppStore((s) => s.deleteExpense)
   const { showToast } = useToast()
-  const currency = useCurrency()
 
   const [editingId, setEditingId] = useState<string | null>(null)
   const [deletingId, setDeletingId] = useState<string | null>(null)
@@ -159,7 +158,7 @@ export function ExpenseHistory({ nav }: ExpenseHistoryProps) {
         title="Eliminar gasto"
         description={
           deletingExpense
-            ? `Se eliminara "${deletingExpense.description || 'este gasto'}" de ${formatMoney(deletingExpense.amount, currency)}.`
+            ? `Se eliminara "${deletingExpense.description || 'este gasto'}" de ${formatMoney(deletingExpense.amount, getCurrency(deletingExpense.currency))}.`
             : undefined
         }
         confirmLabel="Eliminar"

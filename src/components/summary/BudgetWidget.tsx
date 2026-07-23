@@ -3,6 +3,7 @@ import { motion } from 'framer-motion'
 import { useAppStore } from '../../store/useAppStore'
 import { computeTotals, formatMoney } from '../../lib/dates'
 import { useCurrency } from '../../hooks/useCurrency'
+import { useConvert } from '../../hooks/useConvert'
 import { GlassCard } from '../ui/GlassCard'
 import { Button } from '../ui/Button'
 import { BudgetDialog } from './BudgetDialog'
@@ -15,10 +16,16 @@ export function BudgetWidget() {
   const setMonthlyLimit = useAppStore((s) => s.setMonthlyLimit)
   const { showToast } = useToast()
   const currency = useCurrency()
+  const convert = useConvert()
   const [open, setOpen] = useState(false)
 
-  const spent = useMemo(() => computeTotals(expenses).month, [expenses])
-  const limit = budget.monthlyLimit
+  const convertedExpenses = useMemo(
+    () => expenses.map((e) => ({ ...e, amount: convert(e.amount, e.currency) })),
+    [expenses, convert]
+  )
+  const spent = useMemo(() => computeTotals(convertedExpenses).month, [convertedExpenses])
+  const limit =
+    budget.monthlyLimit !== null ? convert(budget.monthlyLimit, budget.monthlyLimitCurrency ?? currency.code) : null
   const pct = limit ? Math.min(100, Math.round((spent / limit) * 100)) : 0
   const over = limit !== null && spent > limit
 
